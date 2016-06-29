@@ -1,9 +1,11 @@
 import http from 'http';
 import express from 'express';
 import bodyParser from 'body-parser';
+import GeoServerLayerRoute from './routes/GeoServerLayerRoute';
 
 var app = express();
 app.server = http.createServer(app);
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -16,37 +18,7 @@ app.use(function(req, res, next) {
 
 
 
-app.use('/', (req, res)=>{
-var auth = 'Basic ' + new Buffer('admin' + ':' + 'geoserver').toString('base64');
-    var post_options = {
-      host: 'localhost',
-      port: '1234',
-      path: '/geoserver/rest/workspaces/tiger/datastores/nyc/featuretypes.json',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': auth
-      }
-   }
-console.log(post_options)
-   var post_req = http.request(post_options, function(res) {
-      res.setEncoding('utf8');
-      //201 is good, anything else is RIP
-      if (res.statusCode === 201){
-          res.on('data', function (chunk) {
-             console.log(chunk);
-          });
-        //since we're good, call back with no error
-      }
-      else{
-          res.on('data', function (chunk) {
-              //something went wrong so call back with error message
-             console.log(chunk);
-          });
-      }
-   });
-   post_req.end();
-});
+app.use('/', GeoServerLayerRoute());
 
 /** Catch all remaining requests 
 app.all('*', function(req, res, next) {
