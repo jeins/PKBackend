@@ -21,7 +21,11 @@ export default function(){
 	route.post('/layer/upload_files/:type/:key', (req, res)=>{});
 	route.post('/layer/upload_layers/:workspace/:dataStore/:key', (req, res)=>{});
 
-	route.put('/layer/edit', (req, res)=>{});
+	route.put('/layer/edit', (req, res)=>{
+		ctrl.updateLayer(req.body, function(result){
+			res.send(result);
+		});
+	});
 
 	return route;
 }
