@@ -1,6 +1,6 @@
-var geoserver = {
+module.exports = {
     rest: {
-        host: 'localhost'
+        host: 'localhost',
         port: 8080,
         username: 'admin',
         password: 'geoserver',
@@ -26,5 +26,3 @@ var geoserver = {
         polygon: 'geometry(Polygon,4326)'
     }
 };
-
-module.exports = geoserver;
