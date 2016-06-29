@@ -59,7 +59,7 @@ module.exports = class QueryBuilder{
 	}
 
 	static queryDropTable(tableName){
-		var query = 'TRUNCATE TABLE %s';
+		var query = 'TRUNCATE TABLE %s RESTART IDENTITY';
 		
 		return util.format(query, tableName);
 	}
