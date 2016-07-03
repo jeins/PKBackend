@@ -53,7 +53,7 @@ module.exports = class QueryBuilder{
 			corValue = corValue.slice(0, -1);
 			if(geometryType.toLowerCase() == geoserver.geometry_type.polygon) corValue += ')';
 			values += util.format(valueTemplate, corValue) + ',';
-		})
+		});
 
 		return util.format(query, tableName, geometryType.toLowerCase(), values.slice(0,-1));
 	}
@@ -69,4 +69,4 @@ module.exports = class QueryBuilder{
 
 		return util.format(query, tableName);
 	}
-}
+};
