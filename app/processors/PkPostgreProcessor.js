@@ -5,6 +5,10 @@ import util from 'util';
 import moment from 'moment';
 
 module.exports = class PkPostgreProcessor{
+    /**
+     * the constructor
+     * set connection to postgresql => database db_petakami
+     */
     constructor(){
         this.db = new pg.Client(
             "pg://" + dbConfig.development.username +  ":" +
@@ -17,12 +21,42 @@ module.exports = class PkPostgreProcessor{
         });
     }
 
+    /**
+     * select data from database
+     * conditions must as a string; exp: "id=1 AND name='test'"
+     * 
+     * @param table
+     * @param selection
+     * @param conditions
+     * @param callback
+     */
+    selectAction(table, selection, conditions, callback){
+        var query = "SELECT %s FROM %s WHERE %s";
+        
+        if(selection == 'all') selection = '*';
+        
+        query = util.format(query, selection, table, conditions);
+        this.db.query(query, function(error, result){
+            if(error) callback(error, null);
+
+            callback(null, result.rows)
+        })
+    }
+
+    /**
+     * insert data to database
+     * dataJson is a json with key as a column and the value of json as the value of table column
+     * 
+     * @param table
+     * @param dataJson
+     * @param callback
+     */
     insertAction(table, dataJson, callback){
         var query = "INSERT INTO %s (%s) VALUES (%s);";
         var self = this;
         var columns = "", values = "";
         
-        this._injectTime(dataJson);
+        this._injectDate(dataJson);
 
         _(dataJson).forEach(function(value, key){
             columns += key + ',';
@@ -51,7 +85,7 @@ module.exports = class PkPostgreProcessor{
         return value;
     }
 
-    _injectTime(dataJson){
+    _injectDate(dataJson){
         var today = moment().format('YYYY-MM-DD HH:mm:ss');
         
         if(dataJson.hasOwnProperty('created_at')){

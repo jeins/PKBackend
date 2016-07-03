@@ -9,6 +9,9 @@ export default function(){
     route.get('/user/active/:hash', (req, res)=>{});
 
     route.post('/user/authenticate', (req, res)=>{
+        ctrl.authenticate(req.body, function(result){
+            res.send(result);  
+        })
     });
     route.post('/user/register', (req, res)=>{
         ctrl.register(req.body, function(result){
