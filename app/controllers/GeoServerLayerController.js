@@ -1,5 +1,4 @@
 import PostgisProcessor from '../processors/PostgisProcessor';
-import async from 'async';
 
 module.exports = class GeoServerLayerController{
 	constructor(){
@@ -19,4 +18,4 @@ module.exports = class GeoServerLayerController{
 			callback(result);
 		});
 	}
-}
+};

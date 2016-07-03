@@ -15,7 +15,7 @@ module.exports = class PostgisProcessor{
 		this.db.connect(function(error){
 			if(error) console.log('srvDb client.connect ERROR: %s', JSON.stringify(error));
 			else console.log('success connect to db_geo');
-		})
+		});
 	}
 
 	addLayerToPostgis(tableName, coordinates, callback){
