@@ -5,7 +5,11 @@ export default function(){
     var route = Router();
     var ctrl = new UserController();
 
-    route.get('/user/me', (req, res)=>{});
+    route.get('/user/me', (req, res)=>{
+        ctrl.me(req.userData, function(result){
+            res.send(result);
+        })
+    });
     route.get('/user/active/:hash', (req, res)=>{});
 
     route.post('/user/authenticate', (req, res)=>{

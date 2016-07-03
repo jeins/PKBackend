@@ -1,5 +1,6 @@
 import GeoServerLayerRoute from './routes/GeoServerLayerRoute';
 import UserRoute from './routes/UserRoute';
+import Middleware from './common/Middleware';
 import http from 'http';
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -10,12 +11,10 @@ app.server = http.createServer(app);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Session-Token, x-client-language");
-    res.header("Access-Control-Allow-Methods", "GET, POST","PUT", "DELETE");
-    next();
-});
+
+// Middleware
+app.use(Middleware.enableCors);
+app.use(Middleware.jwt);
 
 // use morgan to log requests to the console
 app.use(morgan('dev'));
@@ -31,6 +30,5 @@ app.all('*', function(req, res, next) {
 app.server.listen('8888', 'localhost', function () {
     console.log( "Listening on , server_port " )
 });
-
 
 export default app;

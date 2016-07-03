@@ -8,6 +8,10 @@ module.exports = class UserController extends PkPostgreProcessor{
     constructor(){
         super();
     }
+
+    me(userData, callback){
+        callback(userData);
+    }
     
     register(dataJson, callback){
         dataJson.password = this._getHash(dataJson.password);
@@ -28,7 +32,7 @@ module.exports = class UserController extends PkPostgreProcessor{
             if(result.length == 0) return callback({error: true, msg: "User not found or Wrong Password!"});
             if(!result[0].active) return callback({error: true, msg: "Account is not active, check your E-Mail!"});
 
-            var token = jwt.sign({email: result[0].email, password: result[0].password}, mainConf.token.secret, {
+            var token = jwt.sign({id: result[0].id, email: result[0].email, full_name: result[0].full_name}, mainConf.token.secret, {
                 expiresIn: 60*60*24*30
             });
 
