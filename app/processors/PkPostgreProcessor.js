@@ -37,7 +37,7 @@ module.exports = class PkPostgreProcessor{
         
         query = util.format(query, selection, table, conditions);
         this.db.query(query, function(error, result){
-            if(error) callback(error, null);
+            if(error) return callback(error, null);
 
             callback(null, result.rows)
         })
@@ -66,14 +66,40 @@ module.exports = class PkPostgreProcessor{
         query = util.format(query, table, columns.slice(0,-1), values.slice(0,-1));
 
         this.db.query(query, function(error, result){
-            if(error) callback(error, null);
+            if(error) return callback(error, null);
 
             callback(null, result)
         });
     }
 
-    updateAction(table, columns, values, conditions, callback){
+    /**
+     * update data to database
+     * dataJson is a json with key as a column and the value of json as the value of table column
+     * conditions must as a string; exp: "id=1 AND name='test'"
+     *
+     * @param table
+     * @param dataJson
+     * @param conditions
+     * @param callback
+     */
+    updateAction(table, dataJson, conditions, callback){
+        var query = "UPDATE %s SET %s WHERE %s";
+        var self = this;
+        var set = "";
 
+        this._injectDate(dataJson);
+
+        _(dataJson).forEach(function(value, key){
+            set += key + "=" + self._isValueString(value) + ","; 
+        });
+        
+        query = util.format(query, table, set.slice(0,-1), conditions);
+   
+        this.db.query(query, function (error, result) {
+            if(error) return callback(error, null);
+
+            callback(null, result)
+        })
     }
 
     deleteAction(table, conditions, callback){
@@ -82,6 +108,7 @@ module.exports = class PkPostgreProcessor{
 
     _isValueString(value){
         if(isNaN(value)) return "'" + value + "'";
+        if(value == "") return "''";
         return value;
     }
 
@@ -90,6 +117,7 @@ module.exports = class PkPostgreProcessor{
         
         if(dataJson.hasOwnProperty('created_at')){
             dataJson.updated_at = today;
+            delete dataJson['created_at'];
         } else{
             dataJson.created_at = today;
             dataJson.updated_at = today;

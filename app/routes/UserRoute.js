@@ -10,7 +10,11 @@ export default function(){
             res.send(result);
         })
     });
-    route.get('/user/active/:hash', (req, res)=>{});
+    route.get('/user/active/:hash', (req, res)=>{
+        ctrl.setUserActive(req.params.hash, function(result){
+            res.send(result);
+        })
+    });
 
     route.post('/user/authenticate', (req, res)=>{
         ctrl.authenticate(req.body, function(result){

@@ -41,7 +41,22 @@ module.exports = class UserController extends PkPostgreProcessor{
     }
 
     setUserActive(hash, callback){
+        var condition = "hash='" + hash + "' LIMIT 1";
+        var self = this;
+        this.selectAction('users', 'all', condition, function(error, result){
+            if(error) throw error;
+            if(result.length == 0) return callback({error: true, msg: "Could not found not active user."});
 
+            result[0].active = true;
+            result[0].hash = '';
+            
+            condition = "id=" + result[0].id;
+            var dataJson = {hash: result[0].hash, active: result[0].active, created_at: result[0].created_at};
+            self.updateAction('users', dataJson, condition, function(error, result){
+                if(!error) return callback({data: {error: false}});
+                else return callback(error);
+            });
+        });
     }
 
     _getHash(text){
