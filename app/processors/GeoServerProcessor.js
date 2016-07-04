@@ -63,7 +63,7 @@ module.exports = class PostgisProcessor{
 				});
 			},
 			function(layerCollection, callback){
-				async.forEachOf(layerCollection, function(layerName, i, cb){
+				async.map(layerCollection, function(layerName, cb){
 					self._sendJsonRequest(util.format(uri, workspaceName, dataStoreName, layerName), function(result){
 						var attribute = result.featureType.attributes.attribute;
 						var drawType = "";
