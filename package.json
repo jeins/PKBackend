@@ -5,7 +5,7 @@
   "main": "index.js",
   "apidoc": {
     "title": "Dokumentasi API PetaKami",
-    "url" : "http://api.petakami.com",
+    "url": "http://api.petakami.com",
     "order": [
       "GeoServerLayer",
       "User",

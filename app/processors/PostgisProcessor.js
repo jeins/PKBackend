@@ -20,14 +20,17 @@ module.exports = class PostgisProcessor{
 
 	addLayerToPostgis(tableName, coordinates, callback){
 		var self = this;
+		var layerCollection = [];
 
 		async.forEachOf(coordinates, function(coordinate, geometryType, cb){
 			var newTableName = tableName + '_' + geometryType;
+			layerCollection.push(newTableName);
 
 			self._doInsertData(self.db, newTableName, geometryType, coordinate, cb);
 		}, function(err){
 			if(err) callback(err);
-			callback("OK");
+
+			callback(layerCollection);
 		});
 	}
 
@@ -46,17 +49,18 @@ module.exports = class PostgisProcessor{
 			i++;
 		}, function(error){
 			if(error) callback(error);
+
 			callback("OK");
 		});
 	}
 
 	_doRemoveTableIsExist(db, table, geometryType, coordinate, callback){
 		db.query(queryBuilder.querySelectExists(table), function(err, res){
-			if(err) callback(err);
+			if(err) return callback(err);
 
 			if(res.rows[0].exists){
 				db.query(queryBuilder.queryDropTable(table), function(err2, res2){
-					if(err2) callback(err2);
+					if(err2) return callback(err2);
 
 					callback(null, db, table, geometryType, coordinate);
 				});
@@ -66,10 +70,10 @@ module.exports = class PostgisProcessor{
 
 	_doInsertData(db, tableName, geometryType, coordinate, callback){
 		db.query(queryBuilder.queryCreateTable(tableName, geometryType), function(err, res){
-			if(err) callback(err);
+			if(err) return callback(err);
 
 			db.query(queryBuilder.queryInsertData(tableName, geometryType, coordinate), function(err2, res2){
-				if(err2) callback(err2);
+				if(err2) return callback(err2);
 
 				callback(null);
 			});

@@ -1,16 +1,16 @@
-import geoserver from '../constants/GeoserverConfig';
+import geoConf from '../constants/GeoserverConfig';
 import dbConf from '../constants/DatabaseConfig';
-import '_' from 'lodash';
+import _ from 'lodash';
 
 module.exports = class XmlBuilder{
 
 	static dataStore(workspaceName, dataStoreName){
-		var restUrl = geoserver.rest.host + ':' + geoserver.rest.port + '/geoserver/rest';
+		var restUrl = geoConf.rest.host + ':' + geoConf.rest.port + '/geoserver/rest';
 
 		return '\
             <dataStore>\
               <name>'+ dataStoreName +'</name>\
-              <type>'+ geoserver.datastore_type +'</type>\
+              <type>'+ geoConf.datastore_type +'</type>\
               <enabled>true</enabled>\
               <workspace>\
                 <name>'+ workspaceName +'</name>\
@@ -32,10 +32,10 @@ module.exports = class XmlBuilder{
         ';
 	}
 
-	static layerGroup(workspaceName, layerGroupName, layerGroupLayers){
-		var restUrl = geoserver.rest.host + ':' + geoserver.rest.port + '/geoserver/rest';
+	static layerGroup(workspaceName, layerGroupName, layerCollection){
+		var restUrl = geoConf.rest.host + ':' + geoConf.rest.port + '/geoConf/rest';
 
-		$layerGroup = '<layerGroup>\
+		var layerGroup = '<layerGroup>\
                         <name>' + layerGroupName + '</name>\
                         <workspace>\
                             <name>' + workspaceName + '</name>\
@@ -45,13 +45,13 @@ module.exports = class XmlBuilder{
                         </workspace>\
 		                <layers>';
 
-        _(layerGroupLayers).forEach(function(layer){
-            $layerGroup .= '<layer>'.$layer.'</layer>';
+        _(layerCollection).forEach(function(layer){
+            layerGroup += '<layer>' + layer + '</layer>';
         });
 
-        $layerGroup .= '</layers></layerGroup>';
+        layerGroup += '</layers></layerGroup>';
 
-        return $layerGroup;
+        return layerGroup;
 	}
 
 	static featureType(featureTypeName){

@@ -1,11 +1,11 @@
 module.exports = {
     rest: {
         host: 'localhost',
-        port: 8080,
+        port: 1234,
         username: 'admin',
         password: 'geoserver',
-        datastore_type: 'PostGIS'
     },
+    datastore_type: 'PostGIS',
     workspaces: {
         IDBangunan: ['Point', 'LineString', 'Polygon'],
         IDTransportasi: ['LineString'],
