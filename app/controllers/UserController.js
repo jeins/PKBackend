@@ -9,6 +9,24 @@ module.exports = class UserController extends PkPostgreProcessor{
         super();
     }
 
+    /**
+     * @api {get} /user/me Request User information
+     * @apiHeader {String} authorization User Token.
+     * @apiHeader {Application/Json} content-type Allowed Media-Type.
+     * @apiVersion 0.1.0
+     * @apiName GetUser
+     * @apiGroup User
+     *
+     * @apiSuccess {Int} id The User Id.
+     * @apiSuccess {String} full_name Fullname of the User.
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "id": 1,
+     *       "full_name": "Hello World"
+     *    }
+     */
     me(userData, callback){
         callback(userData);
     }

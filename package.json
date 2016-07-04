@@ -1,9 +1,24 @@
 {
   "name": "PKBackend",
   "version": "0.1.0",
+  "description": "PetaKami Backend",
   "main": "index.js",
+  "apidoc": {
+    "title": "Dokumentasi API PetaKami",
+    "url" : "http://api.petakami.com",
+    "order": [
+      "GeoServerLayer",
+      "User",
+      "UserLayer"
+    ],
+    "template": {
+      "withCompare": true,
+      "withGenerator": true
+    }
+  },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build-doc": "apidoc -e node_modules/"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
