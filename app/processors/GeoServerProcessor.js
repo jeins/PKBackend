@@ -22,13 +22,14 @@ module.exports = class PostgisProcessor{
 		};
 	}
 
-	registerLayer(layerCollection, workspaceName, layerGroupName, callback){
+	registerLayer(layerCollection, workspaceName, layerGroupName, isDataStoreExist, callback){
 		var self = this;
 		var dataStoreName = layerGroupName;
 
 		async.waterfall([
 			function(callback){
-				self.createDataStore(workspaceName, dataStoreName, callback);
+				if(!isDataStoreExist) self.createDataStore(workspaceName, dataStoreName, callback);
+				else callback();
 			},
 			function(callback){
 				async.forEachOf(layerCollection, function(layerName, i, cb){
@@ -59,7 +60,7 @@ module.exports = class PostgisProcessor{
 		async.waterfall([
 			function(callback){
 				self.getLayerCollection(workspaceName, dataStoreName, function(layerCollection){
-					callback(null, layerCollection)
+					callback(null, layerCollection);
 				});
 			},
 			function(layerCollection, callback){

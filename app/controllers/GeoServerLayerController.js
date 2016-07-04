@@ -19,7 +19,7 @@ module.exports = class GeoServerLayerController{
 				})
 			}, 
 			function(layerCollection, callback){
-				self.geoServerProcessor.registerLayer(layerCollection, reqBody.workspace, reqBody.name, function(result){
+				self.geoServerProcessor.registerLayer(layerCollection, reqBody.workspace, reqBody.name, false, function(result){
 					callback(null);
 				})
 			},
@@ -36,7 +36,32 @@ module.exports = class GeoServerLayerController{
 	}
 
 	updateLayer(reqBody, callback){
-		this.postgisProcessor.updateLayerToPostgis(reqBody.layers, reqBody.coordinates, function(result){
+		var self = this;
+		reqBody.name = reqBody.name.replace(/\s+/g, '_');
+
+		async.waterfall([
+			function(callback){
+				self.postgisProcessor.updateLayerToPostgis(reqBody.layers, reqBody.coordinates, function(error, layerCollection){
+					if(error) return callback(error, null);
+
+					callback(null, layerCollection);
+				});
+			},
+			function(layerCollection, callback){
+				if(layerCollection.length > 0){
+					self.geoServerProcessor.registerLayer(layerCollection, reqBody.workspace, reqBody.name, true, function(result){
+						callback(null);
+					})
+				} else callback(null);
+			},
+			function(callback){
+				self.geoServerProcessor.getLayerCollectionWithDrawType(reqBody.workspace, reqBody.name, function(result){
+					callback(null, result);
+				})
+			}
+		], function(error, result){
+			if(error) callback(error);
+
 			callback(result);
 		});
 	}

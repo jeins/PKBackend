@@ -38,23 +38,23 @@ module.exports = class PostgisProcessor{
 		var tableArr = layerLists.split(',');
 		var self = this;
 		var i = 0;
+		var layerCollection = [];
 
 		async.forEachOf(coordinates, function(coordinate, geometryType, cb){
-
 			async.waterfall([
-				async.apply(self._doRemoveTableIsExist, self.db, tableArr[i], geometryType, coordinate),
+				async.apply(self._doCleanTableIsExist, self.db, layerCollection, tableArr[i], geometryType, coordinate),
 				self._doInsertData
 			], cb);
 
 			i++;
 		}, function(error){
-			if(error) callback(error);
+			if(error) callback(error, null);
 
-			callback("OK");
+			callback(null, layerCollection);
 		});
 	}
 
-	_doRemoveTableIsExist(db, table, geometryType, coordinate, callback){
+	_doCleanTableIsExist(db, layerCollection, table, geometryType, coordinate, callback){
 		db.query(queryBuilder.querySelectExists(table), function(err, res){
 			if(err) return callback(err);
 
@@ -64,7 +64,10 @@ module.exports = class PostgisProcessor{
 
 					callback(null, db, table, geometryType, coordinate);
 				});
-			} else callback(null, db, table, geometryType, coordinate);
+			} else {
+				layerCollection.push(table);
+				callback(null, db, table, geometryType, coordinate);
+			}
 		});
 	}
 
