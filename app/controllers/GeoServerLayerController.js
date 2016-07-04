@@ -20,13 +20,14 @@ module.exports = class GeoServerLayerController{
 			}, 
 			function(layerCollection, callback){
 				self.geoServerProcessor.registerLayer(layerCollection, reqBody.workspace, reqBody.name, function(result){
-					callback(null, "OK");
+					callback(null);
+				})
+			},
+			function(callback){
+				self.geoServerProcessor.getLayerCollectionWithDrawType(reqBody.workspace, reqBody.name, function(result){
+					callback(null, result);
 				})
 			}
-			/*,
-			function(callback){
-				self.geoServerProcessor.getDrawTypeOfLayer()
-			} */
 		], function(error, result){
 			if(error) callback(error);
 

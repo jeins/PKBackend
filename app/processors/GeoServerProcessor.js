@@ -1,6 +1,7 @@
 import geoConf from '../constants/GeoserverConfig';
 import xmlBuilder from '../common/XmlBuilder';
 import http from 'http';
+import request from 'request';
 import util from 'util';
 import _ from 'lodash';
 import async from 'async';
@@ -8,6 +9,17 @@ import async from 'async';
 module.exports = class PostgisProcessor{
 	
 	constructor(){
+		var auth = 'Basic ' + new Buffer(geoConf.rest.username + ':' + geoConf.rest.password).toString('base64');
+		this.postRequest = {
+			host: geoConf.rest.host,
+			port: geoConf.rest.port,
+			path: '',
+			method: '',
+			headers: {
+				'Content-Type': '',
+				'Authorization': auth
+			}
+		};
 	}
 
 	registerLayer(layerCollection, workspaceName, layerGroupName, callback){
@@ -39,13 +51,50 @@ module.exports = class PostgisProcessor{
 		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), shpFileName, callback);
 	}
 
-	getDrawTypeOfLayer(workspaceName, dataStoreName, layerName, callback){
+	getLayerCollectionWithDrawType(workspaceName, dataStoreName, callback){
 		var uri = '/workspaces/%s/datastores/%s/featuretypes/%s.json';
+		var self = this;
+		var layerWithDrawType = [];
 
+		async.waterfall([
+			function(callback){
+				self.getLayerCollection(workspaceName, dataStoreName, function(layerCollection){
+					callback(null, layerCollection)
+				});
+			},
+			function(layerCollection, callback){
+				async.forEachOf(layerCollection, function(layerName, i, cb){
+					self._sendJsonRequest(util.format(uri, workspaceName, dataStoreName, layerName), function(result){
+						var attribute = result.featureType.attributes.attribute;
+						var drawType = "";
+
+						if(Array.isArray(attribute)) attribute = attribute[0];
+
+						if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.point)) drawType = geoConf.geometry_type.point;
+						if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.linestring)) drawType = geoConf.geometry_type.linestring;
+						if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.polygon)) drawType = geoConf.geometry_type.polygon;
+
+						layerWithDrawType.push({layer: layerName, drawType: drawType});
+
+						cb(null);
+					});
+				}, callback);
+			}
+		], function(error){
+			callback(layerWithDrawType);
+		});
 	}
 
-	getLayerCollection(workspacesName, dataStoreName){
+	getLayerCollection(workspaceName, dataStoreName, callback){
 		var uri = '/workspaces/%s/datastores/%s/featuretypes.json';
+		var layerCollection = [];
+
+		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName), function(result){
+			_(result.featureTypes.featureType).forEach(function(layer){
+				layerCollection.push(layer.name);
+			});
+			callback(layerCollection);
+		});
 	}
 
 	createDataStore(workspaceName, dataStoreName, callback){
@@ -70,21 +119,12 @@ module.exports = class PostgisProcessor{
 	}
 
 	_sendXmlRequest(uri, body, callback){
-		var auth = 'Basic ' + new Buffer(geoConf.rest.username + ':' + geoConf.rest.password).toString('base64');
+		this.postRequest.path = '/geoserver/rest' + uri;
+		this.postRequest.method = 'POST';
+		this.postRequest.headers['Content-Type'] = 'text/xml';
 
-		var postRequest = {
-			host: geoConf.rest.host,
-			port: geoConf.rest.port,
-			path: '/geoserver/rest' + uri,
-			method: 'POST',
-			headers: {
-				'Content-Type': 'text/xml',
-				'Authorization': auth
-			}
-		};
-
-		var req = http.request(postRequest, function(res){
-			res.setEncoding('utf8');console.log(res.statusCode);
+		var req = http.request(this.postRequest, function(res){
+			res.setEncoding('utf8');
 	      	if (res.statusCode === 201){
 	          	res.on('data', function (chunk) {});
 				callback(null);
@@ -96,6 +136,27 @@ module.exports = class PostgisProcessor{
 	      	}
 		});		
 		req.write(body);
+		req.end();
+	}
+
+	_sendJsonRequest(uri, callback){
+		this.postRequest.path = '/geoserver/rest' + uri;
+		this.postRequest.method = 'GET';
+		this.postRequest.headers['Content-Type'] = 'application/json';
+
+		var req = http.request(this.postRequest, function(res){
+			res.setEncoding('utf8');
+	      	if (res.statusCode === 200){
+	          	res.on('data', function (chunk) {
+	             	callback(JSON.parse(chunk));
+	          	});
+	      	}
+	      	else{
+	          	res.on('data', function (chunk) {
+	             	callback(chunk);
+	          	});
+	      	}
+		});		
 		req.end();
 	}
 }
