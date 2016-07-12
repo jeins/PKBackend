@@ -8,8 +8,12 @@ module.exports = class GeoServerLayerController{
 		this.geoServerProcessor = new GeoServerProcessor();
 	}
 
+	getBbox(workspaceName, layerGroupName, callback){
+		callback(null);
+	}
+
 	getDrawType(workspaceName, dataStoreName, layerName, callback){
-		this.geoServerProcessor->getDrawType(workspaceName, dataStoreName, layerName, function(result){
+		this.geoServerProcessor.getDrawType(workspaceName, dataStoreName, layerName, function(result){
 			callback(result);
 		});
 	}
