@@ -8,6 +8,18 @@ module.exports = class GeoServerLayerController{
 		this.geoServerProcessor = new GeoServerProcessor();
 	}
 
+	getFeatureCollectionOfLayerGroup(workspaceName, layerGroupName, callback){
+		this.geoServerProcessor.getFeatureCollection(workspaceName, layerGroupName, false, function(result){
+			callback(result);
+		});
+	}
+
+	getFeatureCollectionFilterByLayer(workspaceName, layerName, callback){
+		this.geoServerProcessor.getFeatureCollection(workspaceName, layerName, true, function(result){
+			callback(result);
+		});
+	}
+
 	getBbox(workspaceName, layerGroupName, callback){
 		this.geoServerProcessor.getCanvasCoordinateForLayerGroup(workspaceName, layerGroupName, function(result){
 			callback(result);

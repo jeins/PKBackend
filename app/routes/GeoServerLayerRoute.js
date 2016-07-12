@@ -7,7 +7,11 @@ export default function(){
 
 	route.get('/layer/:workspace', (req, res)=>{});
 	route.get('/layer/:workspace/:layerGroupName', (req, res)=>{});
-	route.get('/layer/:workspace/:layerGroupName/geojson', (req, res)=>{});
+	route.get('/layer/:workspace/:layerGroupName/geojson', (req, res)=>{
+		ctrl.getFeatureCollectionOfLayerGroup(req.params.workspace, req.params.layerGroupName, function(result){
+			res.send(result);
+		});
+	});
 	route.get('/layer/:workspace/:layerGroupName/bbox', (req, res)=>{
 		ctrl.getBbox(req.params.workspace, req.params.layerGroupName, function(result){
 			res.send(result);
@@ -18,7 +22,11 @@ export default function(){
 			res.send(result);
 		});
 	});
-	route.get('/layer/:workspace/:layers/bylayer/drawtype', (req, res)=>{});
+	route.get('/layer/:workspace/:layers/bylayer/geojson', (req, res)=>{
+		ctrl.getFeatureCollectionFilterByLayer(req.params.workspace, req.params.layers, function(result){
+			res.send(result);
+		});
+	});
 
 	route.post('/layer/add', (req, res)=>{
 		ctrl.postLayer(req.body, function(result){

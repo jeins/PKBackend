@@ -13,7 +13,7 @@ module.exports = class PostgisProcessor{
 		this.postRequest = {
 			host: geoConf.rest.host,
 			port: geoConf.rest.port,
-			path: geoConf.rest.path,
+			path: '',
 			method: '',
 			headers: {
 				'Content-Type': '',
@@ -117,6 +117,34 @@ module.exports = class PostgisProcessor{
 		});
 	}
 
+	getFeatureCollection(workspaceName, layerOrLayerGroupName, isFilterByLayer, callback){
+		var uri = '/%s/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%s:%s&maxFeatures=50&outputFormat=application%2Fjson';
+		var featureTypes = [];
+		var self = this;
+
+		async.waterfall([
+			function(callback){
+				if(!isFilterByLayer) {
+					self.getLayerCollection(workspaceName, layerOrLayerGroupName, function(result){
+						callback(null, result);
+					})
+				} else callback(null, layerOrLayerGroupName.split(','));
+			}, function(layers, callback){
+				async.map(layers, function(layer, cb){
+					self._sendJsonRequest(util.format(uri, workspaceName, workspaceName, layer), function(result){
+						if(featureTypes.length == 0) featureTypes = result;
+						else{
+							featureTypes.features = featureTypes.features.concat(result.features);
+						} 
+						cb(null);
+					});
+				}, callback)
+			}
+		], function(error){
+			callback(featureTypes);
+		});
+	}
+
 	createDataStore(workspaceName, dataStoreName, callback){
 		var uri = '/rest/workspaces/%s/datastores.xml';
 		var body = xmlBuilder.dataStore(workspaceName, dataStoreName);
@@ -143,14 +171,14 @@ module.exports = class PostgisProcessor{
 		this.postRequest.method = 'POST';
 		this.postRequest.headers['Content-Type'] = 'text/xml';
 
-		var req = http.request(this.postRequest, function(res){
+		var req = http.request(this.postRequest, (res)=>{
 			res.setEncoding('utf8');
 	      	if (res.statusCode === 201){
-	          	res.on('data', function (chunk) {});
+	          	res.on('data', (chunk) => {});
 				callback(null);
 	      	}
 	      	else{
-	          	res.on('data', function (chunk) {
+	          	res.on('data', (chunk) => {
 	             	callback(chunk);
 	          	});
 	      	}
@@ -160,43 +188,43 @@ module.exports = class PostgisProcessor{
 	}
 
 	_sendJsonRequest(uri, callback){
-		this.postRequest.path += uri;
+		this.postRequest.path = geoConf.rest.path + uri;
 		this.postRequest.method = 'GET';
 		this.postRequest.headers['Content-Type'] = 'application/json';
 
-		var req = http.request(this.postRequest, function(res){
+		var body = '';
+		var req = http.request(this.postRequest, (res)=>{
 			res.setEncoding('utf8');
 	      	if (res.statusCode === 200){
-	          	res.on('data', function (chunk) {
-	             	callback(JSON.parse(chunk));
+	          	res.on('data', (chunk) => {
+	          		body += chunk;
 	          	});
 	      	}
-	      	else{
-	          	res.on('data', function (chunk) {
-	             	callback(chunk);
-	          	});
-	      	}
-		});		
+
+	      	res.on('end', () => {
+             	callback(JSON.parse(body));
+		  	});
+		});
+		req.on('error', (e)=>{console.log(`problem with request: ${e.message}`);});
 		req.end();
 	}
 
 	_sendRequestGetHtmlBody(uri, callback){
-		this.postRequest.path += uri;
+		this.postRequest.path = geoConf.rest.path + uri;
 		this.postRequest.method = 'GET';
 
-		var req = http.request(this.postRequest, function(res){
+		var body = '';
+		var req = http.get(this.postRequest, (res) => {
 			res.setEncoding('utf8');
-			if (res.statusCode === 200){
-	          	res.on('data', function (chunk) {
-	             	callback(chunk);
-	          	});
-	      	}
-	      	else{
-	          	res.on('data', function (chunk) {
-	             	callback(chunk);
-	          	});
-	      	}
-		});		
+			res.on('data', (chunk) => {
+          		body += chunk;
+          	});
+
+	      	res.on('end', () => {
+             	callback(body);
+		  	});
+		});
+		req.on('error', (e)=>{console.log(`problem with request: ${e.message}`);});
 		req.end();
 	}
 }
