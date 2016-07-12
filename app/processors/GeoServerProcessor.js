@@ -13,7 +13,7 @@ module.exports = class PostgisProcessor{
 		this.postRequest = {
 			host: geoConf.rest.host,
 			port: geoConf.rest.port,
-			path: '',
+			path: geoConf.rest.path,
 			method: '',
 			headers: {
 				'Content-Type': '',
@@ -47,7 +47,7 @@ module.exports = class PostgisProcessor{
 	}
 
 	registerLayerFromShp(workspaceName, dataStoreName, shpFileName, callback){
-		var uri = '/workspaces/%s/datastores/%s/file.shp';
+		var uri = '/rest/workspaces/%s/datastores/%s/file.shp';
 
 		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), shpFileName, callback);
 	}
@@ -75,7 +75,7 @@ module.exports = class PostgisProcessor{
 	}
 
 	getDrawType(workspaceName, dataStoreName, layerName, callback){
-		var uri = '/workspaces/%s/datastores/%s/featuretypes/%s.json';
+		var uri = '/rest/workspaces/%s/datastores/%s/featuretypes/%s.json';
 
 		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName, layerName), function(result){
 			var attribute = result.featureType.attributes.attribute;
@@ -92,11 +92,11 @@ module.exports = class PostgisProcessor{
 	}
 
 	getCanvasCoordinateForLayerGroup(workspaceName, layerGroupName, callback){
-		
+
 	}
 
 	getLayerCollection(workspaceName, dataStoreName, callback){
-		var uri = '/workspaces/%s/datastores/%s/featuretypes.json';
+		var uri = '/rest/workspaces/%s/datastores/%s/featuretypes.json';
 		var layerCollection = [];
 
 		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName), function(result){
@@ -108,28 +108,28 @@ module.exports = class PostgisProcessor{
 	}
 
 	createDataStore(workspaceName, dataStoreName, callback){
-		var uri = '/workspaces/%s/datastores.xml';
+		var uri = '/rest/workspaces/%s/datastores.xml';
 		var body = xmlBuilder.dataStore(workspaceName, dataStoreName);
 
 		this._sendXmlRequest(util.format(uri, workspaceName), body, callback);
 	}
 
 	createFeatureType(workspaceName, dataStoreName, featureTypeName, callback){
-		var uri = '/workspaces/%s/datastores/%s/featuretypes';
+		var uri = '/rest/workspaces/%s/datastores/%s/featuretypes';
 		var body = xmlBuilder.featureType(featureTypeName);
 
 		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), body, callback);
 	}
 
 	createLayerGroup(workspaceName, layerGroupName, layerCollection, callback){
-		var uri = '/layergroups';
+		var uri = '/rest/layergroups';
 		var body = xmlBuilder.layerGroup(workspaceName, layerGroupName, layerCollection);
 
 		this._sendXmlRequest(uri, body, callback);
 	}
 
 	_sendXmlRequest(uri, body, callback){
-		this.postRequest.path = '/geoserver/rest' + uri;
+		this.postRequest.path += uri;
 		this.postRequest.method = 'POST';
 		this.postRequest.headers['Content-Type'] = 'text/xml';
 
@@ -150,7 +150,7 @@ module.exports = class PostgisProcessor{
 	}
 
 	_sendJsonRequest(uri, callback){
-		this.postRequest.path = '/geoserver/rest' + uri;
+		this.postRequest.path += uri;
 		this.postRequest.method = 'GET';
 		this.postRequest.headers['Content-Type'] = 'application/json';
 
