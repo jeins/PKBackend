@@ -9,7 +9,9 @@ module.exports = class GeoServerLayerController{
 	}
 
 	getBbox(workspaceName, layerGroupName, callback){
-		callback(null);
+		this.geoServerProcessor.getCanvasCoordinateForLayerGroup(workspaceName, layerGroupName, function(result){
+			callback(result);
+		});
 	}
 
 	getDrawType(workspaceName, dataStoreName, layerName, callback){

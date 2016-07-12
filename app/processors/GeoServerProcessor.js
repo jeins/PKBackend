@@ -92,7 +92,16 @@ module.exports = class PostgisProcessor{
 	}
 
 	getCanvasCoordinateForLayerGroup(workspaceName, layerGroupName, callback){
+		var uri = '/wms/reflect?format=application/openlayers&layers=%s:%s';
 
+		this._sendRequestGetHtmlBody(util.format(uri, workspaceName, layerGroupName), function(result){
+			var findThis = 'OpenLayers.Bounds(';
+			var startPos = result.indexOf(findThis) + findThis.length;
+			var endPos = result.indexOf(');', startPos);
+			var getCoordinate = result.substring(startPos,endPos).replace(/\n|\s/g, '').split(',');
+
+			callback({data: getCoordinate});
+		});
 	}
 
 	getLayerCollection(workspaceName, dataStoreName, callback){
@@ -103,6 +112,7 @@ module.exports = class PostgisProcessor{
 			_(result.featureTypes.featureType).forEach(function(layer){
 				layerCollection.push(layer.name);
 			});
+
 			callback(layerCollection);
 		});
 	}
@@ -159,6 +169,26 @@ module.exports = class PostgisProcessor{
 	      	if (res.statusCode === 200){
 	          	res.on('data', function (chunk) {
 	             	callback(JSON.parse(chunk));
+	          	});
+	      	}
+	      	else{
+	          	res.on('data', function (chunk) {
+	             	callback(chunk);
+	          	});
+	      	}
+		});		
+		req.end();
+	}
+
+	_sendRequestGetHtmlBody(uri, callback){
+		this.postRequest.path += uri;
+		this.postRequest.method = 'GET';
+
+		var req = http.request(this.postRequest, function(res){
+			res.setEncoding('utf8');
+			if (res.statusCode === 200){
+	          	res.on('data', function (chunk) {
+	             	callback(chunk);
 	          	});
 	      	}
 	      	else{

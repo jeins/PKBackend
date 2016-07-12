@@ -8,11 +8,15 @@ export default function(){
 	route.get('/layer/:workspace', (req, res)=>{});
 	route.get('/layer/:workspace/:layerGroupName', (req, res)=>{});
 	route.get('/layer/:workspace/:layerGroupName/geojson', (req, res)=>{});
-	route.get('/layer/:workspace/:layerGroupName/bbox', (req, res)=>{});
+	route.get('/layer/:workspace/:layerGroupName/bbox', (req, res)=>{
+		ctrl.getBbox(req.params.workspace, req.params.layerGroupName, function(result){
+			res.send(result);
+		});
+	});
 	route.get('/layer/:workspace/:layerGroupName/:layer/drawtype', (req, res)=>{
 		ctrl.getDrawType(req.params.workspace, req.params.layerGroupName, req.params.layer, function(result){
 			res.send(result);
-		})
+		});
 	});
 	route.get('/layer/:workspace/:layers/bylayer/drawtype', (req, res)=>{});
 
