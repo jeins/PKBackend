@@ -12,7 +12,7 @@ module.exports = class PostgisProcessor{
 			dbConfig.development.password +  "@" + dbConfig.development.host +  ":" + 
 			dbConfig.development.port +  "/" + dbConfig.development.db_geo);
 		this.db.client_encoding = 'UTF8';
-		this.db.connect(function(error){
+		this.db.connect((error)=>{
 			if(error) console.log('srvDb client.connect ERROR: %s', JSON.stringify(error));
 			else console.log('success connect to db_geo');
 		});
@@ -22,12 +22,12 @@ module.exports = class PostgisProcessor{
 		var self = this;
 		var layerCollection = [];
 
-		async.forEachOf(coordinates, function(coordinate, geometryType, cb){
+		async.forEachOf(coordinates, (coordinate, geometryType, cb)=>{
 			var newTableName = tableName + '_' + geometryType;
 			layerCollection.push(newTableName);
 
 			self._doInsertData(self.db, newTableName, geometryType, coordinate, cb);
-		}, function(err){
+		}, (err)=>{
 			if(err) callback(err);
 
 			callback(layerCollection);
@@ -40,14 +40,14 @@ module.exports = class PostgisProcessor{
 		var i = 0;
 		var layerCollection = [];
 
-		async.forEachOf(coordinates, function(coordinate, geometryType, cb){
+		async.forEachOf(coordinates, (coordinate, geometryType, cb)=>{
 			async.waterfall([
 				async.apply(self._doCleanTableIsExist, self.db, layerCollection, tableArr[i], geometryType, coordinate),
 				self._doInsertData
 			], cb);
 
 			i++;
-		}, function(error){
+		}, (error)=>{
 			if(error) callback(error, null);
 
 			callback(null, layerCollection);
@@ -55,11 +55,11 @@ module.exports = class PostgisProcessor{
 	}
 
 	_doCleanTableIsExist(db, layerCollection, table, geometryType, coordinate, callback){
-		db.query(queryBuilder.querySelectExists(table), function(err, res){
+		db.query(queryBuilder.querySelectExists(table), (err, res)=>{
 			if(err) return callback(err);
 
 			if(res.rows[0].exists){
-				db.query(queryBuilder.queryDropTable(table), function(err2, res2){
+				db.query(queryBuilder.queryDropTable(table), (err2, res2)=>{
 					if(err2) return callback(err2);
 
 					callback(null, db, table, geometryType, coordinate);
@@ -72,10 +72,10 @@ module.exports = class PostgisProcessor{
 	}
 
 	_doInsertData(db, tableName, geometryType, coordinate, callback){
-		db.query(queryBuilder.queryCreateTable(tableName, geometryType), function(err, res){
+		db.query(queryBuilder.queryCreateTable(tableName, geometryType), (err, res)=>{
 			if(err) return callback(err);
 
-			db.query(queryBuilder.queryInsertData(tableName, geometryType, coordinate), function(err2, res2){
+			db.query(queryBuilder.queryInsertData(tableName, geometryType, coordinate), (err2, res2)=>{
 				if(err2) return callback(err2);
 
 				callback(null);

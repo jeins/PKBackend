@@ -36,7 +36,7 @@ module.exports = class UserController extends PkPostgreProcessor{
         dataJson.hash = this._getHash(dataJson.email);
         dataJson.active = false;
         
-        this.insertAction('users', dataJson, function(error, result){
+        this.insertAction('users', dataJson, (error, result)=>{
             if(!error) return callback({data: {error: false}});
             else return callback(error);
         });
@@ -45,7 +45,7 @@ module.exports = class UserController extends PkPostgreProcessor{
     authenticate(dataJson, callback){
         dataJson.password = this._getHash(dataJson.password);
         var conditions = "email='" + dataJson.email + "' AND password='" + dataJson.password + "' LIMIT 1";
-        this.selectAction('users', 'all', conditions, function(error, result){
+        this.selectAction('users', 'all', conditions, (error, result)=>{
             if(error) throw error;
             if(result.length == 0) return callback({error: true, msg: "User not found or Wrong Password!"});
             if(!result[0].active) return callback({error: true, msg: "Account is not active, check your E-Mail!"});
@@ -61,7 +61,7 @@ module.exports = class UserController extends PkPostgreProcessor{
     setUserActive(hash, callback){
         var condition = "hash='" + hash + "' LIMIT 1";
         var self = this;
-        this.selectAction('users', 'all', condition, function(error, result){
+        this.selectAction('users', 'all', condition, (error, result)=>{
             if(error) throw error;
             if(result.length == 0) return callback({error: true, msg: "Could not found not active user."});
 
@@ -70,7 +70,7 @@ module.exports = class UserController extends PkPostgreProcessor{
             
             condition = "id=" + result[0].id;
             var dataJson = {hash: result[0].hash, active: result[0].active, created_at: result[0].created_at};
-            self.updateAction('users', dataJson, condition, function(error, result){
+            self.updateAction('users', dataJson, condition, (error, result)=>{
                 if(!error) return callback({data: {error: false}});
                 else return callback(error);
             });

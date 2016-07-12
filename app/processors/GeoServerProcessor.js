@@ -27,19 +27,19 @@ module.exports = class PostgisProcessor{
 		var dataStoreName = layerGroupName;
 
 		async.waterfall([
-			function(callback){
+			(callback)=>{
 				if(!isDataStoreExist) self.createDataStore(workspaceName, dataStoreName, callback);
 				else callback();
 			},
-			function(callback){
-				async.forEachOf(layerCollection, function(layerName, i, cb){
+			(callback)=>{
+				async.forEachOf(layerCollection, (layerName, i, cb)=>{
 					self.createFeatureType(workspaceName, dataStoreName, layerName, cb);
 				}, callback);
 			},
-			function(callback){
+			(callback)=>{
 				self.createLayerGroup(workspaceName, layerGroupName, layerCollection, callback);
 			}
-		], function(error, result){
+		], (error, result)=>{
 			if(error) callback(error);
 
 			callback("OK");
@@ -57,21 +57,21 @@ module.exports = class PostgisProcessor{
 		var layerWithDrawType = [];
 
 		async.waterfall([
-			function(callback){
-				self.getLayerCollection(workspaceName, dataStoreName, function(layerCollection){
+			(callback)=>{
+				self.getLayerCollection(workspaceName, dataStoreName, (layerCollection)=>{
 					callback(null, layerCollection);
 				});
 			},
-			function(layerCollection, callback){
-				async.map(layerCollection, function(layerName, cb){
-					self.getDrawType(workspaceName, dataStoreName, layerName, function(result){
+			(layerCollection, callback)=>{
+				async.map(layerCollection, (layerName, cb)=>{
+					self.getDrawType(workspaceName, dataStoreName, layerName, (result)=>{
 						layerWithDrawType.push({layer: result.layer, drawType: result.drawType});
 
 						cb(null);
 					});
 				}, callback);
 			}
-		], function(error){
+		], (error)=>{
 			callback(layerWithDrawType);
 		});
 	}
@@ -79,7 +79,7 @@ module.exports = class PostgisProcessor{
 	getDrawType(workspaceName, dataStoreName, layerName, callback){
 		var uri = '/rest/workspaces/%s/datastores/%s/featuretypes/%s.json';
 
-		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName, layerName), function(result){
+		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName, layerName), (result)=>{
 			var attribute = result.featureType.attributes.attribute;
 			var drawType = "";
 
@@ -96,7 +96,7 @@ module.exports = class PostgisProcessor{
 	getCanvasCoordinateForLayerGroup(workspaceName, layerGroupName, callback){
 		var uri = '/wms/reflect?format=application/openlayers&layers=%s:%s';
 
-		this._sendRequestGetHtmlBody(util.format(uri, workspaceName, layerGroupName), function(result){
+		this._sendRequestGetHtmlBody(util.format(uri, workspaceName, layerGroupName), (result)=>{
 			var findThis = 'OpenLayers.Bounds(';
 			var startPos = result.indexOf(findThis) + findThis.length;
 			var endPos = result.indexOf(');', startPos);
@@ -110,8 +110,8 @@ module.exports = class PostgisProcessor{
 		var uri = '/rest/workspaces/%s/datastores/%s/featuretypes.json';
 		var layerCollection = [];
 
-		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName), function(result){
-			_(result.featureTypes.featureType).forEach(function(layer){
+		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName), (result)=>{
+			_(result.featureTypes.featureType).forEach((layer)=>{
 				layerCollection.push(layer.name);
 			});
 
@@ -125,15 +125,15 @@ module.exports = class PostgisProcessor{
 		var self = this;
 
 		async.waterfall([
-			function(callback){
+			(callback)=>{
 				if(!isFilterByLayer) {
-					self.getLayerCollection(workspaceName, layerOrLayerGroupName, function(result){
+					self.getLayerCollection(workspaceName, layerOrLayerGroupName, (result)=>{
 						callback(null, result);
 					})
 				} else callback(null, layerOrLayerGroupName.split(','));
-			}, function(layers, callback){
-				async.map(layers, function(layer, cb){
-					self._sendJsonRequest(util.format(uri, workspaceName, workspaceName, layer), function(result){
+			}, (layers, callback)=>{
+				async.map(layers, (layer, cb)=>{
+					self._sendJsonRequest(util.format(uri, workspaceName, workspaceName, layer), (result)=>{
 						if(featureTypes.length == 0) featureTypes = result;
 						else{
 							featureTypes.features = featureTypes.features.concat(result.features);
@@ -142,7 +142,7 @@ module.exports = class PostgisProcessor{
 					});
 				}, callback)
 			}
-		], function(error){
+		], (error)=>{
 			callback(featureTypes);
 		});
 	}

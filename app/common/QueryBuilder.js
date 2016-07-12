@@ -27,16 +27,16 @@ module.exports = class QueryBuilder{
 		var valueTemplate = "(ST_GeomFromText('"+ geometryType.toUpperCase() + "(%s)', 4326))";
 		var values = "";
 
-		_(coordinates).forEach(function(coordinate){
+		_(coordinates).forEach((coordinate)=>{
 			var corValue = "";
 
 			if(geometryType.toLowerCase() == geoserver.geometry_type.polygon) corValue = "(";
 
-			_(coordinate).forEach(function(corA){
+			_(coordinate).forEach((corA)=>{
 				if(Array.isArray(corA)){
-					_(corA).forEach(function(corB){
+					_(corA).forEach((corB)=>{
 						if(Array.isArray(corB)){
-							_(corB).forEach(function(corC){
+							_(corB).forEach((corC)=>{
 								corValue += corB[0] + ' ' + corB[1] + ',';
 								return false;
 							});

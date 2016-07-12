@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import GeoServerLayerController from '../controllers/GeoServerLayerController';
 
-export default function(){
+export default ()=>{
 	var route = Router();
 	var ctrl = new GeoServerLayerController();
 

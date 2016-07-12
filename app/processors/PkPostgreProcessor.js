@@ -15,7 +15,7 @@ module.exports = class PkPostgreProcessor{
             dbConfig.development.password +  "@" + dbConfig.development.host +  ":" +
             dbConfig.development.port +  "/" + dbConfig.development.db_pk);
         this.db.client_encoding = 'UTF8';
-        this.db.connect(function(error){
+        this.db.connect((error)=>{
             if(error) console.log('srvDb client.connect ERROR: %s', JSON.stringify(error));
             else console.log('success connect to db_petakami');
         });
@@ -36,7 +36,7 @@ module.exports = class PkPostgreProcessor{
         if(selection == 'all') selection = '*';
         
         query = util.format(query, selection, table, conditions);
-        this.db.query(query, function(error, result){
+        this.db.query(query, (error, result)=>{
             if(error) return callback(error, null);
 
             callback(null, result.rows)
@@ -58,14 +58,14 @@ module.exports = class PkPostgreProcessor{
         
         this._injectDate(dataJson);
 
-        _(dataJson).forEach(function(value, key){
+        _(dataJson).forEach((value, key)=>{
             columns += key + ',';
             values += self._isValueString(value) + ',';
         });
 
         query = util.format(query, table, columns.slice(0,-1), values.slice(0,-1));
 
-        this.db.query(query, function(error, result){
+        this.db.query(query, (error, result)=>{
             if(error) return callback(error, null);
 
             callback(null, result)
@@ -89,13 +89,13 @@ module.exports = class PkPostgreProcessor{
 
         this._injectDate(dataJson);
 
-        _(dataJson).forEach(function(value, key){
+        _(dataJson).forEach((value, key)=>{
             set += key + "=" + self._isValueString(value) + ","; 
         });
         
         query = util.format(query, table, set.slice(0,-1), conditions);
    
-        this.db.query(query, function (error, result) {
+        this.db.query(query, (error, result)=>{
             if(error) return callback(error, null);
 
             callback(null, result)

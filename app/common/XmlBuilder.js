@@ -45,7 +45,7 @@ module.exports = class XmlBuilder{
                         </workspace>\
 		                <layers>';
 
-        _(layerCollection).forEach(function(layer){
+        _(layerCollection).forEach((layer)=>{
             layerGroup += '<layer>' + layer + '</layer>';
         });
 
