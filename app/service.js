@@ -1,5 +1,6 @@
 import GeoServerLayerRoute from './routes/GeoServerLayerRoute';
 import UserRoute from './routes/UserRoute';
+import WorkspaceRoute from './routes/WorkspaceRoute';
 import Middleware from './common/Middleware';
 import http from 'http';
 import express from 'express';
@@ -21,13 +22,14 @@ app.use(morgan('dev'));
 
 app.use('/', GeoServerLayerRoute());
 app.use('/', UserRoute());
+app.use('/', WorkspaceRoute());
 
 /** Catch all remaining requests 
 app.all('*', function(req, res, next) {
     res.redirect('http://google.com');
 });****/
 
-app.server.listen('8888', 'localhost', function () {
+app.server.listen('8888', 'localhost', ()=>{
     console.log( "Listening on , server_port " )
 });
 
