@@ -31,7 +31,7 @@ module.exports = class PkPostgreProcessor{
      * @param callback
      */
     selectAction(table, selection, conditions, callback){
-        var query = "SELECT %s FROM %s WHERE %s";
+        var query = "SELECT %s FROM %s %s";
         
         if(selection == 'all') selection = '*';
         

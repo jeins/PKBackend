@@ -8,6 +8,17 @@ module.exports = class LayerController extends PkPostgreProcessor{
         this.layerTable = 'layers';
     }
 
+    getAll(orderBy, limit, currentPage, callback){
+		if(limit == 0) limit = 1000;
+
+		var condition = 'ORDER BY '+ orderBy + ' LIMIT ' + limit + ' OFFSET ' + currentPage;
+
+		this.selectAction(this.layerTable, 'all', condition, (error, result)=>{
+            if(!error) return callback(result);
+            else return callback(error);
+    	});
+    }
+
     addLayer(userData, dataJson, callback){
     	var data = {
     		user_id: userData.id,
@@ -23,7 +34,7 @@ module.exports = class LayerController extends PkPostgreProcessor{
     }
 
     getLayerFilterByUser(userData, callback){
-    	var condition = 'user_id=' + userData.id;
+    	var condition = 'WHERE user_id=' + userData.id;
     	
     	this.selectAction(this.layerTable, 'all', condition, (error, result)=>{
             if(!error) return callback(result);
@@ -32,7 +43,7 @@ module.exports = class LayerController extends PkPostgreProcessor{
     }
 
     getLayerFilterByWorkspace(workspaceName, callback){
-    	var condition = "workspace='" + workspaceName + "'";
+    	var condition = "WHERE workspace='" + workspaceName + "'";
 
     	this.selectAction(this.layerTable, 'all', condition, (error, result)=>{
             if(!error) return callback(result);

@@ -5,8 +5,10 @@ export default ()=>{
     var route = Router();
     var ctrl = new LayerController();
 
-    route.get('/ulayer/all/:limit/:currPage', (req, res)=>{
-        
+    route.get('/ulayers/:orderBy/:limit/:currPage', (req, res)=>{
+        ctrl.getAll(req.params.orderBy, req.params.limit, req.params.currPage, (result)=>{
+            res.json(result);
+        });
     });
     route.get('/ulayer/user', (req, res)=>{
         ctrl.getLayerFilterByUser(req.userData, (result)=>{

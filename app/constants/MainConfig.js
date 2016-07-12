@@ -9,6 +9,7 @@ module.exports = {
     sha256: {secret: 'P3T4kAM1!!!...' },
     token: {secret: 'test123needbechange'},
     whiteListUri: [
-        '/user/authenticate', '/user/register', '/user/active'
+        '/user/authenticate', '/user/register', '/user/active',
+        '/workspace/all'
     ]
 };

@@ -44,7 +44,7 @@ module.exports = class UserController extends PkPostgreProcessor{
     
     authenticate(dataJson, callback){
         dataJson.password = this._getHash(dataJson.password);
-        var conditions = "email='" + dataJson.email + "' AND password='" + dataJson.password + "' LIMIT 1";
+        var conditions = "WHERE email='" + dataJson.email + "' AND password='" + dataJson.password + "' LIMIT 1";
         this.selectAction('users', 'all', conditions, (error, result)=>{
             if(error) throw error;
             if(result.length == 0) return callback({error: true, msg: "User not found or Wrong Password!"});
@@ -59,7 +59,7 @@ module.exports = class UserController extends PkPostgreProcessor{
     }
 
     setUserActive(hash, callback){
-        var condition = "hash='" + hash + "' LIMIT 1";
+        var condition = "WHERE hash='" + hash + "' LIMIT 1";
         var self = this;
         this.selectAction('users', 'all', condition, (error, result)=>{
             if(error) throw error;
