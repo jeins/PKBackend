@@ -8,6 +8,12 @@ module.exports = class GeoServerLayerController{
 		this.geoServerProcessor = new GeoServerProcessor();
 	}
 
+	getDrawType(workspaceName, dataStoreName, layerName, callback){
+		this.geoServerProcessor->getDrawType(workspaceName, dataStoreName, layerName, function(result){
+			callback(result);
+		});
+	}
+
 	postLayer(reqBody, callback){
 		var self = this;
 		reqBody.name = reqBody.name.replace(/\s+/g, '_');

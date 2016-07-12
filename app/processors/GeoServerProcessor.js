@@ -53,7 +53,6 @@ module.exports = class PostgisProcessor{
 	}
 
 	getLayerCollectionWithDrawType(workspaceName, dataStoreName, callback){
-		var uri = '/workspaces/%s/datastores/%s/featuretypes/%s.json';
 		var self = this;
 		var layerWithDrawType = [];
 
@@ -65,25 +64,35 @@ module.exports = class PostgisProcessor{
 			},
 			function(layerCollection, callback){
 				async.map(layerCollection, function(layerName, cb){
-					self._sendJsonRequest(util.format(uri, workspaceName, dataStoreName, layerName), function(result){
-						var attribute = result.featureType.attributes.attribute;
-						var drawType = "";
-
-						if(Array.isArray(attribute)) attribute = attribute[0];
-
-						if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.point)) drawType = geoConf.geometry_type.point;
-						if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.linestring)) drawType = geoConf.geometry_type.linestring;
-						if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.polygon)) drawType = geoConf.geometry_type.polygon;
-
-						layerWithDrawType.push({layer: layerName, drawType: drawType});
-
-						cb(null);
+					self.getDrawType(workspaceName, dataStoreName, layerName, function(result){
+						layerWithDrawType.push({layer: result.layer, drawType: result.drawType});
 					});
 				}, callback);
 			}
 		], function(error){
 			callback(layerWithDrawType);
 		});
+	}
+
+	getDrawType(workspaceName, dataStoreName, layerName, callback){
+		var uri = '/workspaces/%s/datastores/%s/featuretypes/%s.json';
+
+		this._sendJsonRequest(util.format(uri, workspaceName, dataStoreName, layerName), function(result){
+			var attribute = result.featureType.attributes.attribute;
+			var drawType = "";
+
+			if(Array.isArray(attribute)) attribute = attribute[0];
+
+			if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.point)) drawType = geoConf.geometry_type.point;
+			if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.linestring)) drawType = geoConf.geometry_type.linestring;
+			if(attribute.binding.toLowerCase().includes(geoConf.geometry_type.polygon)) drawType = geoConf.geometry_type.polygon;
+
+			callback({layer: layerName, drawType: drawType});
+		});
+	}
+
+	getCanvasCoordinateForLayerGroup(workspaceName, layerGroupName, callback){
+		
 	}
 
 	getLayerCollection(workspaceName, dataStoreName, callback){
