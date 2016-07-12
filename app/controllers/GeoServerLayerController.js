@@ -8,6 +8,12 @@ module.exports = class GeoServerLayerController{
 		this.geoServerProcessor = new GeoServerProcessor();
 	}
 
+	getLayerCollectionByWorkspace(workspaceName, callback){
+		this.geoServerProcessor.getLayerCollectionFromWorkspace(workspaceName, (result)=>{
+			callback(result);
+		});
+	}
+
 	getLayerCollection(workspaceName, layerGroupName, callback){
 		this.geoServerProcessor.getLayerCollectionWithDrawType(workspaceName, layerGroupName, (result)=>{
 			callback(result);

@@ -52,6 +52,30 @@ module.exports = class PostgisProcessor{
 		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), shpFileName, callback);
 	}
 
+	getLayerCollectionFromWorkspace(workspaceName, callback){
+		var uri = '/rest/workspaces/%s/layergroups.json';
+		var layerCollection = {};
+		var self = this;
+
+		async.waterfall([
+			(callback)=>{
+				self._sendJsonRequest(util.format(uri, workspaceName), (result)=>{
+					callback(null, result.layerGroups.layerGroup);
+				});
+			},
+			(layerGroupNames, callback)=>{
+				async.map(layerGroupNames, (layerGroup, cb)=>{
+					self.getLayerCollectionWithDrawType(workspaceName, layerGroup.name, (res)=>{
+						layerCollection[layerGroup.name] = res;
+						cb(null);
+					})
+				}, callback);
+			}
+		], (error)=>{
+			callback(layerCollection);
+		});
+	}
+
 	getLayerCollectionWithDrawType(workspaceName, dataStoreName, callback){
 		var self = this;
 		var layerWithDrawType = [];

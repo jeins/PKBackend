@@ -5,7 +5,11 @@ export default ()=>{
 	var route = Router();
 	var ctrl = new GeoServerLayerController();
 
-	route.get('/layer/:workspace', (req, res)=>{});
+	route.get('/layer/:workspace', (req, res)=>{
+		ctrl.getLayerCollectionByWorkspace(req.params.workspace, (result)=>{
+			res.json(result);
+		});
+	});
 	route.get('/layer/:workspace/:layerGroupName', (req, res)=>{
 		ctrl.getLayerCollection(req.params.workspace, req.params.layerGroupName, (result)=>{
 			res.send(result);
