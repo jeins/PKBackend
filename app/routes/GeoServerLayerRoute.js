@@ -6,30 +6,34 @@ export default function(){
 	var ctrl = new GeoServerLayerController();
 
 	route.get('/layer/:workspace', (req, res)=>{});
-	route.get('/layer/:workspace/:layerGroupName', (req, res)=>{});
+	route.get('/layer/:workspace/:layerGroupName', (req, res)=>{
+		ctrl.getLayerCollection(req.params.workspace, req.params.layerGroupName, (result)=>{
+			res.send(result);
+		});
+	});
 	route.get('/layer/:workspace/:layerGroupName/geojson', (req, res)=>{
-		ctrl.getFeatureCollectionOfLayerGroup(req.params.workspace, req.params.layerGroupName, function(result){
+		ctrl.getFeatureCollectionOfLayerGroup(req.params.workspace, req.params.layerGroupName, (result)=>{
 			res.send(result);
 		});
 	});
 	route.get('/layer/:workspace/:layerGroupName/bbox', (req, res)=>{
-		ctrl.getBbox(req.params.workspace, req.params.layerGroupName, function(result){
+		ctrl.getBbox(req.params.workspace, req.params.layerGroupName, (result)=>{
 			res.send(result);
 		});
 	});
 	route.get('/layer/:workspace/:layerGroupName/:layer/drawtype', (req, res)=>{
-		ctrl.getDrawType(req.params.workspace, req.params.layerGroupName, req.params.layer, function(result){
+		ctrl.getDrawType(req.params.workspace, req.params.layerGroupName, req.params.layer, (result)=>{
 			res.send(result);
 		});
 	});
 	route.get('/layer/:workspace/:layers/bylayer/geojson', (req, res)=>{
-		ctrl.getFeatureCollectionFilterByLayer(req.params.workspace, req.params.layers, function(result){
+		ctrl.getFeatureCollectionFilterByLayer(req.params.workspace, req.params.layers, (result)=>{
 			res.send(result);
 		});
 	});
 
 	route.post('/layer/add', (req, res)=>{
-		ctrl.postLayer(req.body, function(result){
+		ctrl.postLayer(req.body, (result)=>{
 			res.send(result);
 		});
 	});
@@ -38,7 +42,7 @@ export default function(){
 	route.post('/layer/upload_layers/:workspace/:dataStore/:key', (req, res)=>{});
 
 	route.put('/layer/edit', (req, res)=>{
-		ctrl.updateLayer(req.body, function(result){
+		ctrl.updateLayer(req.body, (result)=>{
 			res.send(result);
 		});
 	});

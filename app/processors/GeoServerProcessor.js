@@ -66,6 +66,8 @@ module.exports = class PostgisProcessor{
 				async.map(layerCollection, function(layerName, cb){
 					self.getDrawType(workspaceName, dataStoreName, layerName, function(result){
 						layerWithDrawType.push({layer: result.layer, drawType: result.drawType});
+
+						cb(null);
 					});
 				}, callback);
 			}
