@@ -1,6 +1,7 @@
 import GeoServerLayerRoute from './routes/GeoServerLayerRoute';
 import UserRoute from './routes/UserRoute';
 import WorkspaceRoute from './routes/WorkspaceRoute';
+import LayerRoute from './routes/LayerRoute';
 import Middleware from './common/Middleware';
 import http from 'http';
 import express from 'express';
@@ -23,6 +24,7 @@ app.use(morgan('dev'));
 app.use('/', GeoServerLayerRoute());
 app.use('/', UserRoute());
 app.use('/', WorkspaceRoute());
+app.use('/', LayerRoute());
 
 /** Catch all remaining requests 
 app.all('*', function(req, res, next) {

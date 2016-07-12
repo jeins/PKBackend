@@ -108,7 +108,7 @@ module.exports = class PkPostgreProcessor{
 
     _isValueString(value){
         if(isNaN(value)) return "'" + value + "'";
-        if(value == "") return "''";
+        if(value === "") return "''";
         return value;
     }
 
