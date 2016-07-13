@@ -30,7 +30,31 @@ module.exports = class UserController extends PkPostgreProcessor{
     me(userData, callback){
         callback(userData);
     }
-    
+
+    /**
+     * @api {post} /user/register Register new user
+     * @apiHeader {Application/Json} content-type Allowed Media-Type.
+     * @apiVersion 0.1.0
+     * @apiName RegisterUser
+     * @apiGroup User
+     *
+     * @apiParamExample {json} Request-Example:
+     *     {
+     *       "email": "demo@petakami.com",
+     *       "password": "demo123",
+     *       "full_name": "demo peta kami"
+     *     }
+     *
+     * @apiSuccess (Boolean) error Error Status
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": {
+     *          "error" : false
+     *       }
+     *    }
+     */
     register(dataJson, callback){
         dataJson.password = this._getHash(dataJson.password);
         dataJson.hash = this._getHash(dataJson.email);
@@ -41,7 +65,29 @@ module.exports = class UserController extends PkPostgreProcessor{
             else return callback(error);
         });
     }
-    
+
+    /**
+     * @api {post} /user/authenticate Request User Token
+     * @apiHeader {Application/Json} content-type Allowed Media-Type.
+     * @apiVersion 0.1.0
+     * @apiName UserAuthenticate
+     * @apiGroup User
+     *
+     * @apiParamExample {json} Request-Example:
+     *      {
+     *          "email": "demo@petakami.com",
+     *          "password": "demo123"
+     *      }
+     *
+     * @apiSuccess {JWT} token User Token
+     *
+     * @apiSuccessExample Success-Response:
+     * HTTP/1.1 200 OK
+     *     {
+     *       "success": true,
+     *       "token" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ1c2VybmFtZSIsInN1YiI6IjEiLCJpYXQiOjE0NTc0MzYxNjAsImV4cCI6MjkxNTQ3NzEyMH0.aP1gr5brZklNM4OzuMFDRphXXLWauZ7kbcxLS_ESItM"
+     *    }
+     */
     authenticate(dataJson, callback){
         dataJson.password = this._getHash(dataJson.password);
         var conditions = "WHERE email='" + dataJson.email + "' AND password='" + dataJson.password + "' LIMIT 1";
@@ -58,6 +104,25 @@ module.exports = class UserController extends PkPostgreProcessor{
         })
     }
 
+    /**
+     * @api {get} /user/active/:hash Actived user status
+     * @apiHeader {Application/Json} content-type Allowed Media-Type.
+     * @apiVersion 0.1.0
+     * @apiName SetUserToActive
+     * @apiGroup User
+     *
+     * @apiParam {Hash} hash User unique Hash from Email
+     *
+     * @apiSuccess (Boolean) error Error Status
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": {
+     *          "error" : false
+     *       }
+     *    }
+     */
     setUserActive(hash, callback){
         var condition = "WHERE hash='" + hash + "' LIMIT 1";
         var self = this;

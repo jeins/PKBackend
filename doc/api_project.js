@@ -1,0 +1,24 @@
+define({
+  "title": "Dokumentasi API PetaKami",
+  "url": "http://api.petakami.com",
+  "order": [
+    "GeoServerLayer",
+    "User",
+    "UserLayer"
+  ],
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  },
+  "name": "PKBackend",
+  "version": "0.1.0",
+  "description": "PetaKami Backend",
+  "sampleUrl": false,
+  "apidoc": "0.2.0",
+  "generator": {
+    "name": "apidoc",
+    "time": "2016-07-13T13:30:16.480Z",
+    "url": "http://apidocjs.com",
+    "version": "0.16.1"
+  }
+});
