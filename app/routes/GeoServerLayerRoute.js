@@ -42,7 +42,11 @@ export default ()=>{
 		});
 	});
 	route.post('/layer/geoserver', (req, res)=>{});
-	route.post('/layer/upload_files/:type/:key', (req, res)=>{});
+	route.post('/layer/upload_files/:type/:key', (req, res)=>{
+		ctrl.uploadFileToTmpFolder(req, res, (result)=>{
+			res.json(result);
+		});
+	});
 	route.post('/layer/upload_layers/:workspace/:dataStore/:key', (req, res)=>{});
 
 	route.put('/layer/edit', (req, res)=>{

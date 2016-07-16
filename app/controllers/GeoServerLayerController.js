@@ -1,11 +1,13 @@
 import PostgisProcessor from '../processors/PostgisProcessor';
 import GeoServerProcessor from '../processors/GeoServerProcessor';
+import ImportProcessor from '../processors/ImportProcessor';
 import async from 'async';
 
 module.exports = class GeoServerLayerController{
 	constructor(){
 		this.postgisProcessor = new PostgisProcessor();
 		this.geoServerProcessor = new GeoServerProcessor();
+		this.uploadProcessor = new ImportProcessor();
 	}
 
 	getLayerCollectionByWorkspace(workspaceName, callback){
@@ -41,6 +43,13 @@ module.exports = class GeoServerLayerController{
 	getDrawType(workspaceName, dataStoreName, layerName, callback){
 		this.geoServerProcessor.getDrawType(workspaceName, dataStoreName, layerName, (result)=>{
 			callback(result);
+		});
+	}
+
+	uploadFileToTmpFolder(req, res, callback){
+		this.uploadProcessor.uploadFileToTmpFolder(req, res, (err)=>{
+			if(err) return callback({error: true});
+			callback({error: false});
 		});
 	}
 
