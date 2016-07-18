@@ -4,7 +4,10 @@ import GeoServerLayerController from '../controllers/GeoServerLayerController';
 export default ()=>{
 	var route = Router();
 	var ctrl = new GeoServerLayerController();
-
+	
+    // ===============================================
+    // ================ GET Request ==================
+    // ===============================================
 	route.get('/layer/:workspace', (req, res)=>{
 		ctrl.getLayerCollectionByWorkspace(req.params.workspace, (result)=>{
 			res.json(result);
@@ -36,6 +39,9 @@ export default ()=>{
 		});
 	});
 
+    // ===============================================
+    // ================ POST Request =================
+    // ===============================================
 	route.post('/layer/add', (req, res)=>{
 		ctrl.postLayer(req.body, (result)=>{
 			res.send(result);
@@ -52,6 +58,9 @@ export default ()=>{
 		});
 	});
 
+    // ===============================================
+    // ================ PUT Request ==================
+    // ===============================================
 	route.put('/layer/edit', (req, res)=>{
 		ctrl.updateLayer(req.body, (result)=>{
 			res.send(result);

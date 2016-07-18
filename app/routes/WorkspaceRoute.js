@@ -5,6 +5,9 @@ export default ()=>{
     var route = Router();
     var ctrl = new WorkspaceController();
 
+    // ===============================================
+    // ================ GET Request ==================
+    // ===============================================
     route.get('/workspace/all', (req, res)=>{
         ctrl.all((result)=>{
             res.json(result);

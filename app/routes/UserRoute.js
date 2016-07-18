@@ -5,6 +5,9 @@ export default ()=>{
     var route = Router();
     var ctrl = new UserController();
 
+    // ===============================================
+    // ================ GET Request ==================
+    // ===============================================
     route.get('/user/me', (req, res)=>{
         ctrl.me(req.userData, (result)=>{
             res.send(result);
@@ -16,6 +19,9 @@ export default ()=>{
         })
     });
 
+    // ===============================================
+    // ================ POST Request =================
+    // ===============================================
     route.post('/user/authenticate', (req, res)=>{
         ctrl.authenticate(req.body, (result)=>{
             res.send(result);  

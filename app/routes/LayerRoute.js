@@ -5,6 +5,9 @@ export default ()=>{
     var route = Router();
     var ctrl = new LayerController();
 
+    // ===============================================
+    // ================ GET Request ==================
+    // ===============================================
     route.get('/ulayers/:orderBy/:limit/:currPage', (req, res)=>{
         ctrl.getAll(req.params.orderBy, req.params.limit, req.params.currPage, (result)=>{
             res.json(result);
@@ -20,7 +23,10 @@ export default ()=>{
             res.json(result);
         });
     });
-
+    
+    // ===============================================
+    // ================ POST Request =================
+    // ===============================================
     route.post('/ulayer/add', (req, res)=>{
         ctrl.addLayer(req.userData, req.body, (result)=>{
             res.json(result);
