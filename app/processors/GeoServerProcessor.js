@@ -79,6 +79,7 @@ module.exports = class PostgisProcessor{
 	getLayerCollectionWithDrawType(workspaceName, dataStoreName, callback){
 		var self = this;
 		var layerWithDrawType = [];
+		dataStoreName = dataStoreName.replace(/\s+/g, '_');
 
 		async.waterfall([
 			(callback)=>{

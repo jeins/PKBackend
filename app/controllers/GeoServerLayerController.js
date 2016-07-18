@@ -53,6 +53,22 @@ module.exports = class GeoServerLayerController{
 		});
 	}
 
+	uploadFileFromTmpToGeoServer(workspaceName, dataStoreName, key, callback){
+		var self = this;
+		async.waterfall([
+			(callback)=>{
+				self.uploadProcessor.importFileToGeoServer(workspaceName, dataStoreName, key, callback);
+			},
+			(callback)=>{
+				self.geoServerProcessor.getLayerCollectionWithDrawType(workspaceName, dataStoreName, (result)=>{
+					callback(result);
+				})
+			}
+		], function(result){
+			callback(result);
+		});
+	}
+
 	postLayer(reqBody, callback){
 		var self = this;
 		reqBody.name = reqBody.name.replace(/\s+/g, '_');
