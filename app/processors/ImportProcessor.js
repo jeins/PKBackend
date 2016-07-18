@@ -2,6 +2,7 @@ import mainConf from '../constants/MainConfig';
 import GeoServerProcessor from './GeoServerProcessor';
 import multer from 'multer';
 import fs from 'fs';
+import _ from 'lodash';
 
 module.exports = class ImportProcessor{
 
@@ -17,9 +18,9 @@ module.exports = class ImportProcessor{
 			destination: (req, file, cb) => {
             	cb(null, tmpFolderWithKey);
 	        },
-	        filename: (req, file, cb) => {console.log(file.fieldname)
+	        filename: (req, file, cb) => {
 	            var datetimestamp = Date.now();
-	            cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
+	            cb(null, type+'._.'+file.originalname);
 	        }
 		});
 		var upload = multer({storage: storage}).single('file');
@@ -29,6 +30,8 @@ module.exports = class ImportProcessor{
 			fs.mkdirSync(tmpFolderWithKey);
 		}
 
+		this._removeFilesInTmpFolder(type, tmpFolderWithKey);
+
 		upload(req, res, (err)=>{
 			if(err) callback(err);
 			else callback(null);
@@ -37,14 +40,14 @@ module.exports = class ImportProcessor{
 
 	importFileToGeoServer(){}
 
-/*
-	_removeFilesInTmpFolder(tmpFolderName){
-		try{
-			var files = fs.readdirSync(tmpFolderName);
-		} catch(e) return;
+	_removeFilesInTmpFolder(type, tmpFolderName){
+		var files = fs.readdirSync(tmpFolderName);
 
 		if(files.length > 0){
-
+			_(files).forEach(function(fileName){
+				var localFileType = fileName.split('._.');
+				if(localFileType[0] == type) fs.unlink(tmpFolderName + fileName);
+			});
 		}
-	}*/
+	}
 }
