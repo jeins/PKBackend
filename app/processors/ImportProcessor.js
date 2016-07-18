@@ -36,15 +36,18 @@ module.exports = class ImportProcessor{
 	importFileToGeoServer(workspaceName, dataStoreName, key, callback){
 		var self = this;
 		var tmpFolderWithKey = mainConf.application.tmpFolder + key + '/';
-		var files = fs.readdirSync(tmpFolderName);
+		var files = fs.readdirSync(tmpFolderWithKey);
 		dataStoreName = dataStoreName.replace(/\s+/g, '_');
 
 		_(files).forEach((fileName, i)=>{
-			var setNewFileName = type + '_' + dataStoreName + self._getFileExtension(fileName);
+			var type = self._splitFilenameFromDrawType(fileName);
+			var setNewFileName = type + '_' + dataStoreName + '.' + self._getFileExtension(fileName);
+
+			fs.renameSync(tmpFolderWithKey+fileName, tmpFolderWithKey+setNewFileName);
 
 			async.waterfall([
 				(callback)=>{
-					self.geoServerProcessor.createDataStore(workspaceName, dataStoreName, callback);
+					self.geoServerProcessor.createDataStore(workspaceName, dataStoreName, ()=>{callback(null);});
 				},
 				(callback)=>{
 					var lastFile = false;
@@ -53,7 +56,8 @@ module.exports = class ImportProcessor{
 
 					switch(self._getFileExtension(fileName)){
 						case 'zip':
-							self.geoServerProcessor.registerLayerFromShp(workspaceName, dataStoreName, ()=>{callback(lastFile)});
+							var shpContent = fs.readFileSync(tmpFolderWithKey+setNewFileName, 'binary');
+							self.geoServerProcessor.registerLayerFromShp(workspaceName, dataStoreName, shpContent, ()=>{callback(lastFile)});
 							break;
 						case 'json':
 							break;
@@ -70,7 +74,7 @@ module.exports = class ImportProcessor{
 						(layerCollection, callback)=>{
 							self.geoServerProcessor.createLayerGroup(workspaceName, dataStoreName, layerCollection, callback);
 						}
-					], =>{callback("OK");})
+					], ()=>{callback("OK");})
 				}
 			});
 		});
@@ -89,7 +93,7 @@ module.exports = class ImportProcessor{
 
 	_getFileExtension(fileName){
 		var split = fileName.split('.');
-		return split[split.length];
+		return split[split.length-1];
 	}
 
 	_splitFilenameFromDrawType(fileName){

@@ -46,10 +46,13 @@ module.exports = class PostgisProcessor{
 		});
 	}
 
-	registerLayerFromShp(workspaceName, dataStoreName, shpFileName, callback){
+	registerLayerFromShp(workspaceName, dataStoreName, shpContent, callback){
 		var uri = '/rest/workspaces/%s/datastores/%s/file.shp';
 
-		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), shpFileName, callback);
+		this.postRequest.method = 'PUT';
+		this.postRequest.headers['Content-Type'] = 'application/zip';
+
+		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), shpContent, callback);
 	}
 
 	getLayerCollectionFromWorkspace(workspaceName, callback){
@@ -176,12 +179,18 @@ module.exports = class PostgisProcessor{
 		var uri = '/rest/workspaces/%s/datastores.xml';
 		var body = xmlBuilder.dataStore(workspaceName, dataStoreName);
 
+		this.postRequest.method = 'POST';
+		this.postRequest.headers['Content-Type'] = 'text/xml';
+
 		this._sendXmlRequest(util.format(uri, workspaceName), body, callback);
 	}
 
 	createFeatureType(workspaceName, dataStoreName, featureTypeName, callback){
 		var uri = '/rest/workspaces/%s/datastores/%s/featuretypes';
 		var body = xmlBuilder.featureType(featureTypeName);
+
+		this.postRequest.method = 'POST';
+		this.postRequest.headers['Content-Type'] = 'text/xml';
 
 		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), body, callback);
 	}
@@ -190,13 +199,14 @@ module.exports = class PostgisProcessor{
 		var uri = '/rest/layergroups';
 		var body = xmlBuilder.layerGroup(workspaceName, layerGroupName, layerCollection);
 
+		this.postRequest.method = 'POST';
+		this.postRequest.headers['Content-Type'] = 'text/xml';
+
 		this._sendXmlRequest(uri, body, callback);
 	}
 
 	_sendXmlRequest(uri, body, callback){
-		this.postRequest.path += uri;
-		this.postRequest.method = 'POST';
-		this.postRequest.headers['Content-Type'] = 'text/xml';
+		this.postRequest.path = geoConf.rest.path + uri;
 
 		var req = http.request(this.postRequest, (res)=>{
 			res.setEncoding('utf8');
@@ -205,12 +215,13 @@ module.exports = class PostgisProcessor{
 				callback(null);
 	      	}
 	      	else{
-	          	res.on('data', (chunk) => {
+	          	res.on('data', (chunk) => {console.log(chunk);
 	             	callback(chunk);
 	          	});
 	      	}
 		});		
 		req.write(body);
+		req.on('error', (e)=>{console.log(`problem with request: ${e.message}`);});
 		req.end();
 	}
 
