@@ -123,10 +123,81 @@ $ sudo vim /etc/apache2/sites-available/000-default.conf
 </VirtualHost>       
 ``` 
 <h3 id="postgresql-and-postgis">Postgresql & Postgis</h3>
-TODO
-<h3 id="nodejs">NodeJs</h3>
-TODO
+#### Install PostgreSQL
+``` bash
+$ sudo apt-get update
+$ sudo apt-get install postgresql postgresql-contrib
+``` 
+#### Membuat Database dan User Baru (*Optional)
+masuk kedalam postgresql
+``` bash
+$ su postgres
+$ psql
+``` 
 
+create database dan user.
+``` bash
+#create database
+$ CREATE DATABASE geodb;
+#create user
+$ CREATE USER geouser WITH PASSWORD 'mypassword';
+```
+
+setup user role.
+``` bash
+$ su postgres
+$ psql -d geodb
+$ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA PUBLIC TO USER geouser;
+$ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA PUBLIC TO USER geouser;
+$ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA PUBLIC TO USER geouser;
+```
+
+aktifkan user baru dengan mengubah pq_hba.conf
+``` bash
+$ su sudo
+$ sudo vim /etc/postgresql/9.5.3/main/pg_hba.conf
+``` 
+tambahkan perintah berikut pada database administrative login. 
+```
+# TYPE  DATABASE    USER        ADDRESS     METHOD
+host    all         geouser     0.0.0.0/0   md5
+```
+setelah itu restart postgresql.
+```
+$ sudo service postgresql restart 9.5.3
+```
+
+#### Install Postgis
+```
+$ sudo apt-get install postgis
+$ cd /usr/share/postgresql/9.5.3/contrib/postgis-2.1/
+$ su oistgres
+$ psql -d geodb -f postgis.sql
+$ psql -d geodb -f spatial_ref_sys.sql
+$ psql -d geodb -f postgis_upgrade_21_minor.sql
+```
+<h3 id="nodejs">NodeJs</h3>
+#### Install NodeJs
+``` bash
+$ sudo apt-get update
+$ sudo apt-get install nodejs
+$ sudo apt-get install npm
+``` 
+
+#### Install Forever
+CLI tool untuk running nodejs script terus menerus.
+``` bash
+$ sudo npm install forever -g
+``` 
+contoh untuk mendaftarkan, view jobs dan stop job app ke forever 
+``` bash
+# start app
+$ forever start app,js
+# forever job list
+$ forever list
+# forever stop job
+$forever stop (key)
+``` 
 <h2 id="pk-backend-setup">PK-Backend Setup</h2>
 TODO
 <h3 id="geoserver-connection">GeoServer Connection</h3>
