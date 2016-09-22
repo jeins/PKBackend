@@ -4,7 +4,7 @@ module.exports = {
         port: 5432,
         username: 'geouser',
         password: 'geouser',
-        db_geo: 'db_geodb',
+        db_geo: 'geodb',
         db_pk: 'db_petakami'
     }
 };

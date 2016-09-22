@@ -147,9 +147,9 @@ setup user role.
 ``` bash
 $ su postgres
 $ psql -d geodb
-$ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA PUBLIC TO USER geouser;
-$ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA PUBLIC TO USER geouser;
-$ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA PUBLIC TO USER geouser;
+$ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA PUBLIC TO geouser;
+$ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA PUBLIC TO geouser;
+$ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA PUBLIC TO geouser;
 ```
 
 aktifkan user baru dengan mengubah pq_hba.conf
@@ -169,9 +169,9 @@ $ sudo service postgresql restart 9.5.3
 
 #### Install Postgis
 ```
-$ sudo apt-get install postgis
+$ sudo apt-get install postgis*
 $ cd /usr/share/postgresql/9.5.3/contrib/postgis-2.1/
-$ su oistgres
+$ su postgres
 $ psql -d geodb -f postgis.sql
 $ psql -d geodb -f spatial_ref_sys.sql
 $ psql -d geodb -f postgis_upgrade_21_minor.sql
