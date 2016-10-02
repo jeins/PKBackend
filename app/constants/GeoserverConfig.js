@@ -1,7 +1,7 @@
 module.exports = {
     rest: {
         host: 'localhost',
-        port: 1234,
+        port: 8080,
         path: '/geoserver',
         username: 'admin',
         password: 'geoserver',

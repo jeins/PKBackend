@@ -13,6 +13,6 @@ module.exports = {
     },
     whiteListUri: [
         '/user/authenticate', '/user/register', '/user/active',
-        '/workspace/all'
+        '/workspace/all', '/layer/:workspace/:layers/bylayer/geojson'
     ]
 };
