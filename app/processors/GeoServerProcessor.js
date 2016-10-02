@@ -161,13 +161,15 @@ module.exports = class PostgisProcessor{
 				} else callback(null, layerOrLayerGroupName.split(','));
 			}, (layers, callback)=>{
 				async.map(layers, (layer, cb)=>{
-					self._sendJsonRequest(util.format(uri, workspaceName, workspaceName, layer), (result)=>{
-						if(featureTypes.length == 0) featureTypes = result;
-						else{
-							featureTypes.features = featureTypes.features.concat(result.features);
-						} 
-						cb(null);
-					});
+					if(layer.length){
+						self._sendJsonRequest(util.format(uri, workspaceName, workspaceName, layer), (result)=>{
+							if(featureTypes.length == 0) featureTypes = result;
+							else{
+								featureTypes.features = featureTypes.features.concat(result.features);
+							}
+							cb(null);
+						});
+					} else cb(null);
 				}, callback)
 			}
 		], (error)=>{
