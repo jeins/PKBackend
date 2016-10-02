@@ -19,9 +19,30 @@ module.exports = {
         var whiteList = false;
 
         _(mainConf.whiteListUri).forEach((uri)=>{
+
             if(req.url.includes(uri)) {
                 whiteList = true;
                 next();
+            } else{
+                var splitWhiteListUri = uri.split('/');
+                var splitRequestUri = req.url.split('/');
+
+                if(splitRequestUri.length == splitWhiteListUri.length){
+                    var whiteListUri = "";
+                    var requestUri = "";
+
+                    _(splitWhiteListUri).forEach((swlUri, i)=>{
+                        if(!swlUri.includes(':')){
+                            whiteListUri += swlUri;
+                            requestUri += splitRequestUri[i];
+                        }
+                    });
+
+                    if(whiteListUri === requestUri){
+                        whiteList = true;
+                        next();
+                    }
+                }
             }
         });
 
@@ -36,5 +57,5 @@ module.exports = {
                 });
             } else return res.status(403).send({ error: true, message: 'No token provided.' });
         }
-    }
+    },
 };
