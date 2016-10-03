@@ -23,7 +23,7 @@ module.exports = class PostgisProcessor{
 	}
 
 	getGeoServerUri(){
-		return geoConf.rest.host + ':' + geoConf.rest.port;
+		return /*geoConf.rest.host + */'http://94.177.245.142:' + geoConf.rest.port + geoConf.rest.path + '/';
 	}
 
 	registerLayer(layerCollection, workspaceName, layerGroupName, isDataStoreExist, callback){
