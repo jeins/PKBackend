@@ -10,6 +10,10 @@ module.exports = class GeoServerLayerController{
 		this.uploadProcessor = new ImportProcessor();
 	}
 
+	getGeoServerUri(callback){
+		callback(this.geoServerProcessor.getGeoServerUri());
+	}
+
 	getLayerCollectionByWorkspace(workspaceName, callback){
 		this.geoServerProcessor.getLayerCollectionFromWorkspace(workspaceName, (result)=>{
 			callback(result);

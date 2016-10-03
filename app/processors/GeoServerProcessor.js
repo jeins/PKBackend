@@ -22,6 +22,10 @@ module.exports = class PostgisProcessor{
 		};
 	}
 
+	getGeoServerUri(){
+		return geoConf.rest.host + ':' + geoConf.rest.port;
+	}
+
 	registerLayer(layerCollection, workspaceName, layerGroupName, isDataStoreExist, callback){
 		var self = this;
 		var dataStoreName = layerGroupName;

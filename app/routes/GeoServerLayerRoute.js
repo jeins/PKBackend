@@ -42,6 +42,11 @@ export default ()=>{
     // ===============================================
     // ================ POST Request =================
     // ===============================================
+	route.post('/layer/geoserver', (req, res)=>{
+		ctrl.getGeoServerUri((result)=>{
+			res.json(result);
+		});
+	});
 	route.post('/layer/add', (req, res)=>{
 		ctrl.postLayer(req.body, (result)=>{
 			res.send(result);
