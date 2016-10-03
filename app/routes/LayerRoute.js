@@ -9,7 +9,7 @@ export default ()=>{
     // ================ GET Request ==================
     // ===============================================
     route.get('/ulayers/:orderBy/:limit/:currPage', (req, res)=>{
-        ctrl.getAll(req.params.orderBy, req.params.limit, req.params.currPage, (result)=>{
+        ctrl.getAll(req.userData, req.params.orderBy, req.params.limit, req.params.currPage, (result)=>{
             res.json(result);
         });
     });

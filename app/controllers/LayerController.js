@@ -1,4 +1,5 @@
 import PkPostgreProcessor from '../processors/PkPostgreProcessor';
+import _ from 'lodash';
 
 module.exports = class LayerController extends PkPostgreProcessor{
 
@@ -8,13 +9,25 @@ module.exports = class LayerController extends PkPostgreProcessor{
         this.layerTable = 'layers';
     }
 
-    getAll(orderBy, limit, currentPage, callback){
+    getAll(userData, orderBy, limit, currentPage, callback){
 		if(limit == 0) limit = 1000;
 
 		var condition = 'ORDER BY '+ orderBy + ' LIMIT ' + limit + ' OFFSET ' + currentPage;
 
+
+
 		this.selectAction(this.layerTable, 'all', condition, (error, result)=>{
-            if(!error) return callback(result);
+
+		    _.forEach(result, (data)=>{
+		        data.allow_edit = false;
+                if(data.user_id == userData.id) data.allow_edit = true;
+            });
+
+            if(!error){
+                this._getTotalPage(limit, (totalPage)=>{
+                    callback({items: result, total_page: totalPage});
+                });
+            }
             else return callback(error);
     	});
     }
@@ -50,4 +63,13 @@ module.exports = class LayerController extends PkPostgreProcessor{
             else return callback(error);
     	});
     }
-}
+
+    _getTotalPage(pageSize, callback){
+        this.selectAction(this.layerTable, 'COUNT(*) as totalRecord', '', (error, result)=>{
+            if(!error){
+                var totalPage = result[0]['totalrecord'] / pageSize;
+                callback(Math.ceil(totalPage));
+            } else return callback(error);
+        })
+    }
+};
