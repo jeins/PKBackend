@@ -139,6 +139,7 @@ create database dan user.
 ``` bash
 #create database
 $ CREATE DATABASE geodb;
+$ CREATE DATABASE db_petakami;
 #create user
 $ CREATE USER geouser WITH PASSWORD 'mypassword';
 ```
@@ -154,7 +155,7 @@ $ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA PUBLIC TO geouser;
 
 aktifkan user baru dengan mengubah pq_hba.conf
 ``` bash
-$ su sudo
+$ sudo su
 $ sudo vim /etc/postgresql/9.5.3/main/pg_hba.conf
 ``` 
 tambahkan perintah berikut pada database administrative login. 
@@ -162,6 +163,15 @@ tambahkan perintah berikut pada database administrative login.
 # TYPE  DATABASE    USER        ADDRESS     METHOD
 host    all         geouser     0.0.0.0/0   md5
 ```
+
+(optional) mengizin akses postgresql dari cross network, sebagai contoh agar dapat diakses melalui PgAdmin
+```
+$sudo vim /etc/postgresql/9.5.3/main/postgresql.conf
+
+#uncomment listen_addresses dan set value '*'
+listen_addresses = '*'
+```
+
 setelah itu restart postgresql.
 ```
 $ sudo service postgresql restart 9.5.3
