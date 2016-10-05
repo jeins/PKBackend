@@ -165,7 +165,7 @@ host    all         geouser     0.0.0.0/0   md5
 ```
 
 (optional) mengizin akses postgresql dari cross network, sebagai contoh agar dapat diakses melalui PgAdmin
-```
+``` bash
 $sudo vim /etc/postgresql/9.5.3/main/postgresql.conf
 
 #uncomment listen_addresses dan set value '*'
@@ -173,12 +173,12 @@ listen_addresses = '*'
 ```
 
 setelah itu restart postgresql.
-```
+``` bash
 $ sudo service postgresql restart 9.5.3
 ```
 
 #### Install Postgis
-```
+``` bash
 $ sudo apt-get install postgis*
 $ cd /usr/share/postgresql/9.5.3/contrib/postgis-2.1/
 $ su postgres
@@ -190,8 +190,8 @@ $ psql -d geodb -f postgis_upgrade_21_minor.sql
 #### Install NodeJs
 ``` bash
 $ sudo apt-get update
-$ sudo apt-get install nodejs
-$ sudo apt-get install npm
+$ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+$ sudo apt-get install -y nodejs
 ``` 
 
 #### Install Forever
@@ -208,6 +208,23 @@ $ forever list
 # forever stop job
 $forever stop (key)
 ``` 
+
+#### Install GIT
+``` bash
+$ sudo apt-get update
+$ sudo apt-get install git
+``` 
+
+setelah menginstall Git, kita dapat mengclone project PetaKami.
+``` bash
+# clone backend
+$ sudo git clone https://github.com/jeins/PKBackend.git
+
+#clone frontend
+$ sudo git clone https://github.com/jeins/PKFrontend.git
+``` 
+setalah project diclone kita dapat melihat folder project PKBackend / PKFrontend
+
 <h2 id="pk-backend-setup">PK-Backend Setup</h2>
 TODO
 <h3 id="geoserver-connection">GeoServer Connection</h3>
