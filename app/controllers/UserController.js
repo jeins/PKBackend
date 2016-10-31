@@ -1,4 +1,5 @@
 import PkPostgreProcessor from '../processors/PkPostgreProcessor';
+import SendEmailProcessor from '../processors/SendEmailProcessor';
 import mainConf from '../constants/MainConfig';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
@@ -7,6 +8,7 @@ module.exports = class UserController extends PkPostgreProcessor{
 
     constructor(){
         super();
+        this.mailer = new SendEmailProcessor();
     }
 
     /**
@@ -61,8 +63,13 @@ module.exports = class UserController extends PkPostgreProcessor{
         dataJson.active = false;
         
         this.insertAction('users', dataJson, (error, result)=>{
-            if(!error) return callback({data: {error: false}});
-            else return callback(error);
+            if(!error && result) {
+                this.mailer.sendEmail(dataJson.email, dataJson.hash, (error, result)=>{
+                    if(!error) return callback({error:"", success:"Check your email to activated your account!"});
+                    else return callback({error:"something wrong with send a email", success:""});
+                });
+            }
+            else return callback({error:"can't register your account", success:""});
         });
     }
 
