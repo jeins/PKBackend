@@ -12,7 +12,7 @@ module.exports = class LayerController extends PkPostgreProcessor{
     getAll(userData, orderBy, limit, currentPage, callback){
 		if(limit == 0) limit = 1000;
 
-		var condition = 'ORDER BY '+ orderBy + ' LIMIT ' + limit + ' OFFSET ' + currentPage - 1;
+		var condition = 'ORDER BY '+ orderBy + ' LIMIT ' + limit + ' OFFSET ' + (currentPage - 1);
 
         this.selectAction(this.layerTable, 'all', condition, (error, result)=>{
 
