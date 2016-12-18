@@ -5,6 +5,7 @@ import request from 'request';
 import util from 'util';
 import _ from 'lodash';
 import async from 'async';
+import fs from 'fs';
 
 module.exports = class PostgisProcessor{
 	
@@ -50,13 +51,16 @@ module.exports = class PostgisProcessor{
 		});
 	}
 
-	registerLayerFromShp(workspaceName, dataStoreName, shpContent, callback){
+	registerLayerFromShp(workspaceName, dataStoreName, shpContent){
 		var uri = '/rest/workspaces/%s/datastores/%s/file.shp';
 
 		this.postRequest.method = 'PUT';
 		this.postRequest.headers['Content-Type'] = 'application/zip';
+        this.postRequest.path = geoConf.rest.path + util.format(uri, workspaceName, dataStoreName);
 
-		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), shpContent, callback);
+        fs.createReadStream(shpContent).pipe(http.request(this.postRequest));
+
+		//this._sendRequest(util.format(uri, workspaceName, dataStoreName), shpContent, callback);
 	}
 
 	getLayerCollectionFromWorkspace(workspaceName, callback){
@@ -188,7 +192,7 @@ module.exports = class PostgisProcessor{
 		this.postRequest.method = 'POST';
 		this.postRequest.headers['Content-Type'] = 'text/xml';
 
-		this._sendXmlRequest(util.format(uri, workspaceName), body, callback);
+		this._sendRequest(util.format(uri, workspaceName), body, callback);
 	}
 
 	createFeatureType(workspaceName, dataStoreName, featureTypeName, callback){
@@ -198,7 +202,7 @@ module.exports = class PostgisProcessor{
 		this.postRequest.method = 'POST';
 		this.postRequest.headers['Content-Type'] = 'text/xml';
 
-		this._sendXmlRequest(util.format(uri, workspaceName, dataStoreName), body, callback);
+		this._sendRequest(util.format(uri, workspaceName, dataStoreName), body, callback);
 	}
 
 	createLayerGroup(workspaceName, layerGroupName, layerCollection, callback){
@@ -208,16 +212,16 @@ module.exports = class PostgisProcessor{
 		this.postRequest.method = 'POST';
 		this.postRequest.headers['Content-Type'] = 'text/xml';
 
-		this._sendXmlRequest(uri, body, callback);
+		this._sendRequest(uri, body, callback);
 	}
 
-	_sendXmlRequest(uri, body, callback){
+	_sendRequest(uri, body, callback){
 		this.postRequest.path = geoConf.rest.path + uri;
 
 		var req = http.request(this.postRequest, (res)=>{
 			res.setEncoding('utf8');
 	      	if (res.statusCode === 201){
-	          	res.on('data', (chunk) => {});
+	          	res.on('data', (chunk) => {console.log(chunk);});
 				callback(null);
 	      	}
 	      	else{

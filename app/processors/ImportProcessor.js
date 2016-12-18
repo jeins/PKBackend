@@ -52,12 +52,12 @@ module.exports = class ImportProcessor{
 				(callback)=>{
 					var lastFile = false;
 
-					if(i == files.length) lastFile = true;
+					if(i == files.length-1) lastFile = true;
 
 					switch(self._getFileExtension(fileName)){
 						case 'zip':
-							var shpContent = fs.readFileSync(tmpFolderWithKey+setNewFileName, 'binary');
-							self.geoServerProcessor.registerLayerFromShp(workspaceName, dataStoreName, shpContent, ()=>{callback(lastFile)});
+                            self.geoServerProcessor.registerLayerFromShp(workspaceName, dataStoreName, tmpFolderWithKey+setNewFileName);
+                            callback(lastFile);
 							break;
 						case 'json':
 							break;
@@ -69,12 +69,16 @@ module.exports = class ImportProcessor{
 				if(lastFile) {
 					async.waterfall([
 						(callback)=>{
-							self.geoServerProcessor.getLayerCollection(workspaceName, dataStoreName, (result)=>{callback(result);});
+							self.geoServerProcessor.getLayerCollection(workspaceName, dataStoreName, (result)=>{callback(null, result);});
 						},
 						(layerCollection, callback)=>{
 							self.geoServerProcessor.createLayerGroup(workspaceName, dataStoreName, layerCollection, callback);
 						}
-					], ()=>{callback("OK");})
+					], (error, result)=>{
+                        if(error) callback(error);
+
+                        callback("OK");
+					})
 				}
 			});
 		});

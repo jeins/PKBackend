@@ -61,7 +61,7 @@ module.exports = class GeoServerLayerController{
 		var self = this;
 		async.waterfall([
 			(callback)=>{
-				self.uploadProcessor.importFileToGeoServer(workspaceName, dataStoreName, key, callback);
+				self.uploadProcessor.importFileToGeoServer(workspaceName, dataStoreName, key, ()=>{callback(null)});
 			},
 			(callback)=>{
 				self.geoServerProcessor.getLayerCollectionWithDrawType(workspaceName, dataStoreName, (result)=>{
