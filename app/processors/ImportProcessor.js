@@ -62,13 +62,29 @@ module.exports = class ImportProcessor{
                             callback(lastFile);
 							break;
 						case 'json':
-							break;
-						case 'csv':
-							let coordinate = self._getCoordinateFromCsv(fs.readFileSync(tmpFolderWithKey+setNewFileName, 'utf8'));
+							let coordinateFromGeoJson = self._getCoordinateFromGeoJson(JSON.parse(fs.readFileSync(tmpFolderWithKey+setNewFileName)));
 
                             async.waterfall([
                                 (callback)=>{
-                                    self.postgisProcessor.addLayerToPostgis(dataStoreName, coordinate, (layerCollection)=>{
+                                    self.postgisProcessor.addLayerToPostgis(dataStoreName, coordinateFromGeoJson, (layerCollection)=>{
+                                        callback(null, layerCollection);
+                                    })
+                                },
+                                (layerCollection, callback)=>{
+                                    self.geoServerProcessor.registerLayerFromCsv(layerCollection, workspaceName, dataStoreName, (result)=>{
+                                        callback(null, result);
+                                    })
+                                }
+                            ], (error, result)=>{
+                                callback(lastFile);
+                            });
+							break;
+						case 'csv':
+							let coordinateFromCsv = self._getCoordinateFromCsv(fs.readFileSync(tmpFolderWithKey+setNewFileName, 'utf8'));
+
+                            async.waterfall([
+                                (callback)=>{
+                                    self.postgisProcessor.addLayerToPostgis(dataStoreName, coordinateFromCsv, (layerCollection)=>{
                                         callback(null, layerCollection);
                                     })
                                 },
@@ -102,7 +118,26 @@ module.exports = class ImportProcessor{
 		});
 	}
 
-	_getCoordinateFromGeoJson(geoJson){}
+	_getCoordinateFromGeoJson(geoJson){
+		let features = geoJson.features;
+		let resultJson = [];
+		let obj = {};
+		let coordinateType = '';
+
+		_.forEach(features, (feature)=>{
+			if(feature.geometry){
+				coordinateType = feature.geometry.type.toLowerCase();
+
+				resultJson.push(feature.geometry.coordinates);
+			}
+		});
+
+        if(!_.isEmpty(resultJson)){
+            obj[coordinateType] = resultJson;
+		}
+
+        return obj;
+	}
 
 	_getCoordinateFromCsv(csv){
 		let resultJson = [];
