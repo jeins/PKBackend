@@ -63,6 +63,22 @@ module.exports = class PostgisProcessor{
 		//this._sendRequest(util.format(uri, workspaceName, dataStoreName), shpContent, callback);
 	}
 
+	registerLayerFromCsv(layerCollection, workspaceName, dataStoreName, callback){
+		let self = this;
+
+        async.waterfall([
+            (callback)=>{
+                async.forEachOf(layerCollection, (layerName, i, cb)=>{
+                    self.createFeatureType(workspaceName, dataStoreName, layerName, cb);
+                }, callback);
+            }
+        ], (error, result)=>{
+            if(error) callback(error);
+
+            callback("OK");
+        });
+	}
+
 	getLayerCollectionFromWorkspace(workspaceName, callback){
 		var uri = '/rest/workspaces/%s/layergroups.json';
 		var layerCollection = {};

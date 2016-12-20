@@ -1,5 +1,6 @@
 import mainConf from '../constants/MainConfig';
 import GeoServerProcessor from './GeoServerProcessor';
+import PostgisProcessor from '../processors/PostgisProcessor';
 import multer from 'multer';
 import fs from 'fs';
 import _ from 'lodash';
@@ -8,6 +9,7 @@ import async from 'async';
 module.exports = class ImportProcessor{
 
 	constructor(){
+        this.postgisProcessor = new PostgisProcessor();
 		this.geoServerProcessor = new GeoServerProcessor();
 	}
 
@@ -62,6 +64,22 @@ module.exports = class ImportProcessor{
 						case 'json':
 							break;
 						case 'csv':
+							let coordinate = self._getCoordinateFromCsv(fs.readFileSync(tmpFolderWithKey+setNewFileName, 'utf8'));
+
+                            async.waterfall([
+                                (callback)=>{
+                                    self.postgisProcessor.addLayerToPostgis(dataStoreName, coordinate, (layerCollection)=>{
+                                        callback(null, layerCollection);
+                                    })
+                                },
+                                (layerCollection, callback)=>{
+                                    self.geoServerProcessor.registerLayerFromCsv(layerCollection, workspaceName, dataStoreName, (result)=>{
+                                        callback(null, result);
+                                    })
+                                }
+                            ], (error, result)=>{
+                                callback(lastFile);
+                            });
 							break;
 					}
 				}
@@ -82,6 +100,85 @@ module.exports = class ImportProcessor{
 				}
 			});
 		});
+	}
+
+	_getCoordinateFromGeoJson(geoJson){}
+
+	_getCoordinateFromCsv(csv){
+		let resultJson = [];
+		let obj = {};
+		let lines = csv.replace(/\r/g, '').split("\n");
+		let coordinateType = this._getCoordinateType(lines[1]);
+
+		for(let i=1; i<lines.length; i++){
+			let currentLines = (coordinateType === 'polygon') ? lines[i].split('((') : lines[i].split('(');
+			let coordinate = this._getCoordinate(currentLines, coordinateType);
+
+			if(!_.isEmpty(coordinate)){
+                if(coordinateType === 'polygon'){
+                    resultJson.push([coordinate]);
+				} else{
+                    resultJson.push(coordinate);
+				}
+			}
+		}
+
+		obj[coordinateType] = resultJson;
+
+		return obj;
+	}
+
+	_getCoordinate(currentLines, coordinateType){
+		let coordinate = [];
+		let self = this;
+		_.forEach(currentLines, (line)=>{
+			let closeBracket = (coordinateType === 'polygon') ? '))' : ')';
+			if(line.includes(closeBracket)){
+				let rawCoordinate = line.replace(closeBracket, '').replace('"', '');
+
+				if(coordinateType === 'point'){
+					coordinate = self._getXAndY(rawCoordinate);
+				}
+
+				if(coordinateType === 'linestring' || coordinateType === 'polygon'){
+					let pointCoordinates = rawCoordinate.split(', ');
+
+					_.forEach(pointCoordinates, (pointCoordinate)=>{
+						let tmpXYCoordinate = self._getXAndY(pointCoordinate);
+
+						if(!_.isEmpty(tmpXYCoordinate)){
+							coordinate.push(tmpXYCoordinate);
+						}
+					});
+				}
+			}
+		});
+
+		return coordinate;
+	}
+
+	_getXAndY(rawCoordinate){
+        let guessCoordinate = rawCoordinate.split(' ');
+        let xy = [];
+
+        if(guessCoordinate.length === 2 && !isNaN(Number(guessCoordinate[0])) && !isNaN(Number(guessCoordinate[1]))){
+            xy.push(Number(guessCoordinate[0]));
+            xy.push(Number(guessCoordinate[1]));
+        }
+        return xy;
+	}
+
+	_getCoordinateType(coordinate){
+		let coordinateTypes = ['point', 'linestring', 'polygon'];
+		let type = '';
+
+		_.forEach(coordinateTypes, (coordinateType)=>{
+			if(coordinate.toLowerCase().includes(coordinateType)){
+				type = coordinateType;
+			}
+		});
+
+		return type;
 	}
 
 	_removeFilesInTmpFolder(type, tmpFolderName){
