@@ -1,11 +1,12 @@
-PKBackend
+PetaKami Backend
 ===================
-RESTful-Webservice penghubung antara client Peta Kami dengan GeoServer untuk memanage GeoSpasial yang telah dibuat pada client. Selain itu PKBackend berperan dalam mengatur UserAuth dan UserLayerManagement.
+RESTful-Webservice penghubung antara [client Peta Kami](https://github.com/jeins/PKFrontend) dengan GeoServer untuk memanage GeoSpasial yang telah dibuat pada client. Selain itu PKBackend berperan dalam mengatur UserAuth dan UserLayerManagement.
 
 ----------
 
 ## Contents
 
+ - [PKFrontend](https://github.com/jeins/PKFrontend)
  - [Installation](#installation)
 	 - [Requirements](#requirements)
 	 - [Tomcat 7](#tomcat-7)
